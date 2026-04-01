@@ -330,6 +330,16 @@
       grid-template-columns: repeat(2, 1fr);
       max-width: 760px;
     }
+    .team-grid--five {
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2rem;
+    }
+    @media (max-width: 1100px) {
+      .team-grid--five { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 700px) {
+      .team-grid--five { grid-template-columns: repeat(2, 1fr); }
+    }
     .t-card {}
     .t-img {
       width: 100%; aspect-ratio: 3/4;
@@ -646,26 +656,45 @@
     <div class="team-head">
       <p class="sec-label reveal">Arkasındaki İnsanlar</p>
       <h2 class="sec-title reveal reveal-d1">
-        İki kardeş,<br>
-        <em>bir ortak hayal.</em>
+        Doğayı seven,<br>
+        <em>elleriyle kuran</em> ekip.
       </h2>
     </div>
-    <div class="team-grid team-grid--two">
+    <div class="team-grid team-grid--five">
       <div class="t-card reveal">
         <div class="t-img t-img--avatar">
           <img src="images/avatar-deniz.jpg" alt="Deniz Bozbeyoğlu" loading="lazy">
         </div>
-        <p class="t-role">Kurucu &nbsp;·&nbsp; Mimar</p>
+        <p class="t-role">Kurucu</p>
         <h3 class="t-name">Deniz Bozbeyoğlu</h3>
-        <p class="t-bio">Doğa Evleri'nin kurucu ortağı. Her araziye önce toprağın gözüyle, sonra mimarın kalemıyle yaklaşır.</p>
       </div>
       <div class="t-card reveal reveal-d1">
         <div class="t-img t-img--avatar">
           <img src="images/avatar-koray.jpg" alt="Koray Bozbeyoğlu" loading="lazy">
         </div>
-        <p class="t-role">Kurucu &nbsp;·&nbsp; İnşaat</p>
+        <p class="t-role">Proje Yöneticisi</p>
         <h3 class="t-name">Koray Bozbeyoğlu</h3>
-        <p class="t-bio">Karkas çelik sistemlerin hayata geçirilmesinden sorumlu. Bir yapının güzelliği kadar sağlamlığını da takip eder.</p>
+      </div>
+      <div class="t-card reveal reveal-d2">
+        <div class="t-img t-img--avatar">
+          <img src="images/avatar-tunay.jpg" alt="Tunay Bozbeyoğlu" loading="lazy">
+        </div>
+        <p class="t-role">Çevre Mühendisi</p>
+        <h3 class="t-name">Tunay Bozbeyoğlu</h3>
+      </div>
+      <div class="t-card reveal reveal-d3">
+        <div class="t-img t-img--avatar">
+          <img src="images/avatar-eifsu.jpg" alt="Eifsu Kalaycıoğlu" loading="lazy">
+        </div>
+        <p class="t-role">Hukuk Danışmanı</p>
+        <h3 class="t-name">Eifsu Kalaycıoğlu</h3>
+      </div>
+      <div class="t-card reveal reveal-d3">
+        <div class="t-img t-img--avatar">
+          <img src="images/avatar-eren.jpg" alt="Eren Kalaycıoğlu" loading="lazy">
+        </div>
+        <p class="t-role">Formen</p>
+        <h3 class="t-name">Eren Kalaycıoğlu</h3>
       </div>
     </div>
   </section>
