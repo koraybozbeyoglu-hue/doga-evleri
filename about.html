@@ -326,6 +326,10 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 3rem;
     }
+    .team-grid--two {
+      grid-template-columns: repeat(2, 1fr);
+      max-width: 760px;
+    }
     .t-card {}
     .t-img {
       width: 100%; aspect-ratio: 3/4;
@@ -333,14 +337,26 @@
       background: rgba(107,79,58,0.08);
       position: relative;
     }
+    .t-img--avatar {
+      aspect-ratio: 1/1;
+      border-radius: 50%;
+      border: 2px solid rgba(200,169,110,0.25);
+    }
     .t-img img {
       width: 100%; height: 100%; object-fit: cover;
       filter: saturate(0.4) brightness(0.85);
       transition: filter 0.8s, transform 0.8s var(--ease-out);
       display: block;
     }
+    .t-img--avatar img {
+      filter: none;
+    }
     .t-card:hover .t-img img {
       filter: saturate(0.7) brightness(1);
+      transform: scale(1.04);
+    }
+    .t-card:hover .t-img--avatar img {
+      filter: none;
       transform: scale(1.04);
     }
     .t-role {
@@ -630,34 +646,26 @@
     <div class="team-head">
       <p class="sec-label reveal">Arkasındaki İnsanlar</p>
       <h2 class="sec-title reveal reveal-d1">
-        Doğayı seven,<br>
-        <em>elleriyle kuran</em> ekip.
+        İki kardeş,<br>
+        <em>bir ortak hayal.</em>
       </h2>
     </div>
-    <div class="team-grid">
+    <div class="team-grid team-grid--two">
       <div class="t-card reveal">
-        <div class="t-img">
-          <img src="images/team-01.jpg" alt="Kurucu Ortak" loading="lazy">
+        <div class="t-img t-img--avatar">
+          <img src="images/avatar-deniz.jpg" alt="Deniz Bozbeyoğlu" loading="lazy">
         </div>
         <p class="t-role">Kurucu &nbsp;·&nbsp; Mimar</p>
-        <h3 class="t-name">Murat Bozbeyoğlu</h3>
-        <p class="t-bio">Orman mühendisliğinden mimarlığa geçen nadir isimlerden. Her araziye önce ağaç, sonra mimar gözüyle bakar.</p>
+        <h3 class="t-name">Deniz Bozbeyoğlu</h3>
+        <p class="t-bio">Doğa Evleri'nin kurucu ortağı. Her araziye önce toprağın gözüyle, sonra mimarın kalemıyle yaklaşır.</p>
       </div>
       <div class="t-card reveal reveal-d1">
-        <div class="t-img">
-          <img src="images/team-02.jpg" alt="İnşaat Mühendisi" loading="lazy">
+        <div class="t-img t-img--avatar">
+          <img src="images/avatar-koray.jpg" alt="Koray Bozbeyoğlu" loading="lazy">
         </div>
-        <p class="t-role">İnşaat Mühendisi</p>
-        <h3 class="t-name">Selin Arslan</h3>
-        <p class="t-bio">Karkas çelik sistemlerde 12 yıllık deneyim. Bir yapının ne kadar güzel göründüğü kadar, ne kadar sağlam durduğuna odaklanır.</p>
-      </div>
-      <div class="t-card reveal reveal-d2">
-        <div class="t-img">
-          <img src="images/team-03.jpg" alt="Peyzaj Tasarımcısı" loading="lazy">
-        </div>
-        <p class="t-role">Peyzaj Tasarımcısı</p>
-        <h3 class="t-name">Emre Çelik</h3>
-        <p class="t-bio">Evin bittiği yerde doğanın başladığı noktayı tasarlar. Bahçe değil, süreklilik yaratır.</p>
+        <p class="t-role">Kurucu &nbsp;·&nbsp; İnşaat</p>
+        <h3 class="t-name">Koray Bozbeyoğlu</h3>
+        <p class="t-bio">Karkas çelik sistemlerin hayata geçirilmesinden sorumlu. Bir yapının güzelliği kadar sağlamlığını da takip eder.</p>
       </div>
     </div>
   </section>
