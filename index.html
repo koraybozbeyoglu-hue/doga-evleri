@@ -101,6 +101,59 @@
     }
     .nav-links a:hover { color: var(--color-cream); }
 
+    /* ── HAMBURGer ── */
+    .nav-hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 32px; height: 32px;
+      background: none; border: none;
+      cursor: pointer; padding: 0;
+      z-index: 600;
+    }
+    .nav-hamburger span {
+      display: block; width: 100%; height: 1px;
+      background: var(--color-cream);
+      transition: transform 0.35s var(--ease-out), opacity 0.35s;
+      transform-origin: center;
+    }
+    .nav-hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+    .nav-hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* ── MOBİL MENÜ PANELİ ── */
+    .nav-mobile {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(10,20,10,0.97);
+      backdrop-filter: blur(16px);
+      z-index: 550;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease-out);
+    }
+    .nav-mobile.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .nav-mobile a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 8vw, 3.2rem);
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: var(--color-cream);
+      text-decoration: none;
+      opacity: 0.7;
+      transition: opacity 0.3s, color 0.3s;
+    }
+    .nav-mobile a:hover { opacity: 1; color: var(--color-gold); }
+
     /* ── HERO ────────────────────────────────── */
     #hero {
       position: relative;
@@ -561,6 +614,8 @@
       #nav { padding: 1.5rem 2rem; }
       #nav.scrolled { padding: 1rem 2rem; }
       .nav-links { display: none; }
+      .nav-hamburger { display: flex; }
+      .nav-mobile { display: flex; }
       #difference { padding: 6rem 2rem; }
       .diff-grid { grid-template-columns: 1fr; }
       .projects-head { padding: 0 2rem; }
@@ -590,7 +645,18 @@
       <li><a href="process.html">Süreç</a></li>
       <li><a href="contact.html">İletişim</a></li>
     </ul>
+    <button class="nav-hamburger" id="hamburger" aria-label="Menü">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <!-- ── MOBİL MENÜ ── -->
+  <div class="nav-mobile" id="mobileMenu">
+    <a href="about.html">Felsefemiz</a>
+    <a href="projects.html">Projeler</a>
+    <a href="process.html">Süreç</a>
+    <a href="contact.html">İletişim</a>
+  </div>
 
   <!-- ── HERO ── -->
   <section id="hero">
@@ -770,6 +836,24 @@
   </footer>
 
   <script>
+  // ════════════════════════════════════════════
+  //  HAMBURGer MENU
+  // ════════════════════════════════════════════
+  const hamburger   = document.getElementById('hamburger');
+  const mobileMenu  = document.getElementById('mobileMenu');
+  hamburger.addEventListener('click', () => {
+    const open = hamburger.classList.toggle('open');
+    mobileMenu.classList.toggle('open', open);
+    document.body.style.overflow = open ? 'hidden' : '';
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+
   // ════════════════════════════════════════════
   //  CURSOR
   // ════════════════════════════════════════════
