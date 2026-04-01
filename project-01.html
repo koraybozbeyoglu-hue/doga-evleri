@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Çam Ormanı Projesi — Doğa Evleri</title>
+  <meta name="description" content="Bolu, çam ormanının içinde 120 m² karkas çelik doğa evi. Arazi analizi, inşaat süreci ve teslim fotoğrafları.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root {
+      --color-earth:  #6B4F3A;
+      --color-forest: #1C3A1E;
+      --color-stone:  #8C8C7A;
+      --color-cream:  #F5F0E8;
+      --color-gold:   #C8A96E;
+      --color-dark:   #0F1A0F;
+      --color-text:   #2C2C2C;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--color-dark);
+      color: var(--color-text);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ── */
+    #cursor {
+      width: 8px; height: 8px; background: var(--color-gold);
+      border-radius: 50%; position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.15s var(--ease-out);
+    }
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(200,169,110,0.35);
+      border-radius: 50%; position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), border-color 0.3s;
+    }
+
+    /* ── NAV ── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 2rem 4rem;
+      transition: padding 0.5s var(--ease-out), background 0.5s, backdrop-filter 0.5s, border-bottom 0.5s;
+    }
+    #nav.scrolled {
+      padding: 1.2rem 4rem;
+      background: rgba(15,26,15,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(245,240,232,0.06);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem; font-weight: 300;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--color-cream); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 3rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.72rem; font-weight: 400;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(245,240,232,0.5); text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--color-cream); }
+
+    /* ── BACK LINK ── */
+    .back-link {
+      position: fixed; top: 50%; left: 2rem;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex; align-items: center; gap: 0.7rem;
+      font-size: 0.65rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: rgba(245,240,232,0.3);
+      text-decoration: none; writing-mode: vertical-rl;
+      transition: color 0.3s;
+    }
+    .back-link:hover { color: var(--color-gold); }
+    .back-line {
+      width: 1px; height: 50px;
+      background: rgba(245,240,232,0.15);
+    }
+
+    /* ── HERO ── */
+    #project-hero {
+      width: 100%; height: 100vh;
+      position: relative; overflow: hidden;
+    }
+    .hero-img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: saturate(0.6) brightness(0.6);
+      transform: scale(1.05);
+    }
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(15,26,15,0.85) 0%, rgba(15,26,15,0.2) 50%, transparent 100%);
+    }
+    .hero-meta {
+      position: absolute; bottom: 5rem; left: 4rem;
+      z-index: 10;
+    }
+    .hero-breadcrumb {
+      font-size: 0.65rem; letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.4);
+      margin-bottom: 1.2rem;
+      opacity: 0; transform: translateY(15px);
+    }
+    .hero-breadcrumb a { color: inherit; text-decoration: none; transition: color 0.3s; }
+    .hero-breadcrumb a:hover { color: var(--color-gold); }
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 7vw, 7rem);
+      font-weight: 300; line-height: 1.05;
+      letter-spacing: -0.025em; color: var(--color-cream);
+      max-width: 800px;
+      opacity: 0; transform: translateY(30px);
+    }
+    .hero-title em { font-style: italic; color: var(--color-gold); }
+    .hero-tags {
+      display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap;
+      opacity: 0; transform: translateY(15px);
+    }
+    .htag {
+      padding: 0.4rem 1rem;
+      border: 1px solid rgba(200,169,110,0.25);
+      font-size: 0.63rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: rgba(245,240,232,0.55);
+    }
+
+    /* ── SPECS BAR ── */
+    #specs-bar {
+      background: var(--color-cream);
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid rgba(107,79,58,0.12);
+    }
+    .spec-item {
+      padding: 2.5rem 3rem;
+      border-right: 1px solid rgba(107,79,58,0.12);
+    }
+    .spec-item:last-child { border-right: none; }
+    .spec-label {
+      font-size: 0.62rem; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--color-stone);
+      margin-bottom: 0.5rem;
+    }
+    .spec-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; font-weight: 300;
+      color: var(--color-earth); line-height: 1;
+    }
+
+    /* ── STORY SECTION ── */
+    #story {
+      background: var(--color-cream);
+      padding: 9rem 4rem;
+    }
+    .story-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8rem; align-items: start;
+    }
+    .story-left {}
+    .sec-label {
+      font-size: 0.68rem; font-weight: 400;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--color-stone); margin-bottom: 1.5rem;
+    }
+    .sec-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 4vw, 3.8rem);
+      font-weight: 300; line-height: 1.15;
+      letter-spacing: -0.02em; color: var(--color-earth);
+      margin-bottom: 2.5rem;
+    }
+    .sec-title em { font-style: italic; color: var(--color-forest); }
+    .story-body p {
+      font-size: 0.92rem; font-weight: 300;
+      line-height: 2.0; color: #5A5040;
+      margin-bottom: 1.6rem;
+    }
+    .story-body p:last-child { margin-bottom: 0; }
+    .story-body strong { font-weight: 500; color: var(--color-earth); }
+    .pull-quote {
+      margin: 3rem 0;
+      padding: 2rem 2.5rem;
+      border-left: 2px solid var(--color-gold);
+      background: rgba(107,79,58,0.04);
+    }
+    .pull-quote p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 300;
+      font-style: italic; line-height: 1.5;
+      color: var(--color-earth); margin: 0 !important;
+    }
+    .story-right {}
+
+    /* ── PHASE IMAGES ── */
+    .phase {
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    .phase-img {
+      width: 100%; overflow: hidden;
+    }
+    .phase-img img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      filter: saturate(0.7);
+      transition: transform 0.8s var(--ease-out);
+    }
+    .phase:hover .phase-img img { transform: scale(1.04); }
+    .phase-caption {
+      padding: 1.2rem 0 0;
+      display: flex; justify-content: space-between; align-items: baseline;
+    }
+    .phase-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; font-weight: 400; color: var(--color-earth);
+    }
+    .phase-label {
+      font-size: 0.62rem; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--color-stone);
+    }
+
+    /* ── DETAIL GALLERY ── */
+    #gallery {
+      background: var(--color-dark);
+      padding: 9rem 4rem;
+    }
+    .gallery-head { margin-bottom: 4rem; }
+    .gallery-head .sec-label { color: rgba(140,140,122,0.55); }
+    .gallery-head .sec-title { color: var(--color-cream); }
+    .gallery-head .sec-title em { color: var(--color-gold); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto auto;
+      gap: 1rem;
+    }
+    .g-cell { overflow: hidden; position: relative; }
+    .g-cell img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      filter: saturate(0.65) brightness(0.82);
+      transition: transform 0.8s var(--ease-out), filter 0.8s;
+    }
+    .g-cell:hover img { transform: scale(1.06); filter: saturate(0.9) brightness(1); }
+    .g-cell:nth-child(1) { grid-column: 1/6; grid-row: 1; aspect-ratio: 4/3; }
+    .g-cell:nth-child(2) { grid-column: 6/9; grid-row: 1; aspect-ratio: 2/3; }
+    .g-cell:nth-child(3) { grid-column: 9/13; grid-row: 1; aspect-ratio: 4/3; }
+    .g-cell:nth-child(4) { grid-column: 1/5; grid-row: 2; aspect-ratio: 3/2; }
+    .g-cell:nth-child(5) { grid-column: 5/9; grid-row: 2; aspect-ratio: 3/2; }
+    .g-cell:nth-child(6) { grid-column: 9/13; grid-row: 2; aspect-ratio: 3/2; }
+
+    /* ── TECH SPECS ── */
+    #tech-specs {
+      background: var(--color-forest);
+      padding: 9rem 4rem;
+    }
+    .ts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8rem; align-items: start;
+    }
+    .ts-left .sec-label { color: rgba(140,140,122,0.55); }
+    .ts-left .sec-title { color: var(--color-cream); }
+    .ts-left .sec-title em { color: var(--color-gold); }
+    .ts-intro {
+      font-size: 0.88rem; font-weight: 300;
+      line-height: 1.9; color: rgba(245,240,232,0.45);
+      max-width: 440px; margin-top: 2rem;
+    }
+    .ts-table {
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .ts-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding: 1.4rem 0;
+      border-bottom: 1px solid rgba(245,240,232,0.07);
+    }
+    .ts-row:first-child { border-top: 1px solid rgba(245,240,232,0.07); }
+    .ts-key {
+      font-size: 0.7rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: rgba(245,240,232,0.35);
+    }
+    .ts-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem; font-weight: 300; color: var(--color-cream);
+      text-align: right;
+    }
+
+    /* ── NEXT PROJECT ── */
+    #next-project {
+      background: var(--color-dark);
+      position: relative; overflow: hidden;
+    }
+    .next-link {
+      display: block; text-decoration: none;
+      padding: 6rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .next-bg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: saturate(0.4) brightness(0.3);
+      transform: scale(1.05);
+      transition: transform 1s var(--ease-out), filter 1s;
+    }
+    .next-link:hover .next-bg {
+      transform: scale(1);
+      filter: saturate(0.5) brightness(0.4);
+    }
+    .next-overlay {
+      position: absolute; inset: 0;
+      background: rgba(15,26,15,0.65);
+    }
+    .next-inner { position: relative; z-index: 1; text-align: center; }
+    .next-label {
+      font-size: 0.65rem; letter-spacing: 0.28em;
+      text-transform: uppercase; color: rgba(245,240,232,0.4);
+      margin-bottom: 1.5rem; display: block;
+    }
+    .next-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 6vw, 5.5rem);
+      font-weight: 300; line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--color-cream);
+      margin-bottom: 2rem;
+    }
+    .next-arrow {
+      font-size: 0.75rem; letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(200,169,110,0.7);
+      border-bottom: 1px solid rgba(200,169,110,0.3);
+      padding-bottom: 0.2rem;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    .next-link:hover .next-arrow {
+      color: var(--color-gold);
+      border-color: var(--color-gold);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--color-dark); padding: 3.5rem 4rem;
+      border-top: 1px solid rgba(245,240,232,0.05);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .f-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 300;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(245,240,232,0.3);
+    }
+    .f-copy { font-size: 0.68rem; color: rgba(245,240,232,0.18); letter-spacing: 0.08em; }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 0.12s; }
+    .reveal-d2 { transition-delay: 0.24s; }
+    .reveal-d3 { transition-delay: 0.36s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      #nav { padding: 1.5rem 2rem; }
+      #nav.scrolled { padding: 1rem 2rem; }
+      .nav-links { display: none; }
+      .back-link { display: none; }
+      .hero-meta { left: 2rem; bottom: 3rem; }
+      #specs-bar { grid-template-columns: repeat(2,1fr); }
+      #story, #gallery, #tech-specs { padding: 6rem 2rem; }
+      .story-grid { grid-template-columns: 1fr; gap: 4rem; }
+      .ts-grid { grid-template-columns: 1fr; gap: 4rem; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .g-cell:nth-child(n) { grid-column: auto; grid-row: auto; aspect-ratio: 4/3; }
+      .next-link { padding: 5rem 2rem; }
+      footer { padding: 2.5rem 2rem; flex-direction: column; gap: 1rem; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      body { cursor: auto; }
+      #cursor, #cursor-ring { display: none; }
+      #specs-bar { grid-template-columns: 1fr 1fr; }
+      .gallery-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <nav id="nav">
+    <a href="index.html" class="nav-logo">Doğa Evleri</a>
+    <ul class="nav-links">
+      <li><a href="about.html">Felsefemiz</a></li>
+      <li><a href="projects.html">Projeler</a></li>
+      <li><a href="process.html">Süreç</a></li>
+      <li><a href="contact.html">İletişim</a></li>
+    </ul>
+  </nav>
+
+  <a href="projects.html" class="back-link">
+    <div class="back-line"></div>
+    Tüm Projeler
+  </a>
+
+  <!-- ── HERO ── -->
+  <section id="project-hero">
+    <img class="hero-img" src="https://picsum.photos/seed/forest_hero_01/1600/900" alt="Çam Ormanı Projesi — Bolu">
+    <div class="hero-overlay"></div>
+    <div class="hero-meta">
+      <p class="hero-breadcrumb">
+        <a href="projects.html">Projeler</a>
+        &nbsp;&nbsp;/&nbsp;&nbsp; Orman &nbsp;&nbsp;/&nbsp;&nbsp; 2023
+      </p>
+      <h1 class="hero-title">Çam Ormanı<br><em>Projesi</em></h1>
+      <div class="hero-tags">
+        <span class="htag">Bolu</span>
+        <span class="htag">120 m²</span>
+        <span class="htag">Karkas Çelik</span>
+        <span class="htag">4.5 Ay</span>
+        <span class="htag">2023</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SPECS BAR ── -->
+  <div id="specs-bar">
+    <div class="spec-item">
+      <p class="spec-label">Konum</p>
+      <p class="spec-value">Bolu, Türkiye</p>
+    </div>
+    <div class="spec-item">
+      <p class="spec-label">Yapı Alanı</p>
+      <p class="spec-value">120 m²</p>
+    </div>
+    <div class="spec-item">
+      <p class="spec-label">Tamamlanma</p>
+      <p class="spec-value">Eylül 2023</p>
+    </div>
+    <div class="spec-item">
+      <p class="spec-label">İnşaat Süresi</p>
+      <p class="spec-value">4.5 Ay</p>
+    </div>
+  </div>
+
+  <!-- ── HİKAYE ── -->
+  <section id="story">
+    <div class="story-grid">
+      <div class="story-left">
+        <p class="sec-label reveal">Proje Hikayesi</p>
+        <h2 class="sec-title reveal reveal-d1">
+          Arazi bize şunu<br>
+          söyledi:<br>
+          <em>"Beni dinle."</em>
+        </h2>
+        <div class="story-body">
+          <p class="reveal reveal-d2">
+            Bolu'nun 900 metre yüksekliğindeki bu arazi, bize geldiğinde üç katlı
+            klasik bir köy evi planı vardı müşterimizin elinde. Mimara götürmüştü,
+            rakam çok yüksek çıkmıştı. <strong>Bize geldi ve şunu söyledi:
+            "Sadece nefes alabileceğim bir yer istiyorum."</strong>
+          </p>
+          <p class="reveal reveal-d2">
+            Araziye ilk gittiğimizde güneşin öğleden sonra batı yamaçtan geldiğini
+            fark ettik. Ağaçların arasında bir koridor oluşuyordu — tam güneyde,
+            tam vadiye bakacak bir nokta. Tasarım o gün, o noktada başladı.
+          </p>
+
+          <div class="pull-quote reveal">
+            <p>"Evi arazi için değil, arazi için evi tasarladık. Bu fark her şeydir."</p>
+          </div>
+
+          <p class="reveal reveal-d1">
+            Karkas çelik iskelet, mevcut ağaçların arasına işlendi.
+            Tek bir çam kesilmedi. Temel, kayalık zemine ankrajla tutturuldu.
+            <strong>Güney cephesi tamamen cam,</strong> kuzey cephesi masif ahşap panel ile
+            kapatıldı — yazın serin, kışın sıcak.
+          </p>
+          <p class="reveal reveal-d2">
+            4.5 ayda, iki mevsimin içinden geçerek tamamlandı.
+            Teslim günü müşterimiz içeri girdi, hiçbir şey söylemedi.
+            Sadece büyük camın önünde durdu ve dışarıya baktı.
+            O bakış, bizim için en iyi referans mektubu oldu.
+          </p>
+        </div>
+      </div>
+
+      <div class="story-right">
+        <div class="phase reveal">
+          <div class="phase-img" style="aspect-ratio:4/3">
+            <img src="https://picsum.photos/seed/land_01/800/600" alt="Arazi — İnşaat öncesi" loading="lazy">
+          </div>
+          <div class="phase-caption">
+            <span class="phase-title">Arazi — Ham Hali</span>
+            <span class="phase-label">Şubat 2023</span>
+          </div>
+        </div>
+
+        <div class="phase reveal reveal-d1">
+          <div class="phase-img" style="aspect-ratio:4/3">
+            <img src="https://picsum.photos/seed/frame_01/800/600" alt="Çelik karkas inşaat süreci" loading="lazy">
+          </div>
+          <div class="phase-caption">
+            <span class="phase-title">İskelet — Çelik Karkas</span>
+            <span class="phase-label">Nisan 2023</span>
+          </div>
+        </div>
+
+        <div class="phase reveal reveal-d2">
+          <div class="phase-img" style="aspect-ratio:4/3">
+            <img src="https://picsum.photos/seed/complete_01/800/600" alt="Tamamlanmış proje" loading="lazy">
+          </div>
+          <div class="phase-caption">
+            <span class="phase-title">Teslim — Hazır Hali</span>
+            <span class="phase-label">Eylül 2023</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── GALERİ ── -->
+  <section id="gallery">
+    <div class="gallery-head">
+      <p class="sec-label reveal">Detay Fotoğrafları</p>
+      <h2 class="sec-title reveal reveal-d1">
+        İçinden ve<br>
+        <em>dışından bakış.</em>
+      </h2>
+    </div>
+    <div class="gallery-grid">
+      <div class="g-cell reveal">
+        <img src="https://picsum.photos/seed/detail_11/900/675" alt="Büyük cam cephe" loading="lazy">
+      </div>
+      <div class="g-cell reveal reveal-d1">
+        <img src="https://picsum.photos/seed/detail_12/600/900" alt="İç mekan detay" loading="lazy">
+      </div>
+      <div class="g-cell reveal reveal-d2">
+        <img src="https://picsum.photos/seed/detail_13/900/675" alt="Orman manzarası" loading="lazy">
+      </div>
+      <div class="g-cell reveal">
+        <img src="https://picsum.photos/seed/detail_14/900/600" alt="Ahşap tavan detayı" loading="lazy">
+      </div>
+      <div class="g-cell reveal reveal-d1">
+        <img src="https://picsum.photos/seed/detail_15/900/600" alt="Akşam ışığı" loading="lazy">
+      </div>
+      <div class="g-cell reveal reveal-d2">
+        <img src="https://picsum.photos/seed/detail_16/900/600" alt="Çelik detay" loading="lazy">
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TEKNİK DETAYLAR ── -->
+  <section id="tech-specs">
+    <div class="ts-grid">
+      <div class="ts-left">
+        <p class="sec-label reveal">Teknik Detaylar</p>
+        <h2 class="sec-title reveal reveal-d1">
+          Rakamlar ve<br>
+          <em>gerçekler.</em>
+        </h2>
+        <p class="ts-intro reveal reveal-d2">
+          Her kararın arkasında bir neden var. Kullandığımız malzemeleri,
+          uyguladığımız sistemleri ve tercihlerimizin gerekçelerini saklı tutmayız.
+        </p>
+      </div>
+      <div class="ts-table reveal">
+        <div class="ts-row">
+          <span class="ts-key">Yapı Sistemi</span>
+          <span class="ts-val">Karkas Çelik</span>
+        </div>
+        <div class="ts-row">
+          <span class="ts-key">Toplam Alan</span>
+          <span class="ts-val">120 m²</span>
+        </div>
+        <div class="ts-row">
+          <span class="ts-key">Isı Yalıtımı</span>
+          <span class="ts-val">12 cm Taş Yünü</span>
+        </div>
+        <div class="ts-row">
+          <span class="ts-key">Cephe Kaplama</span>
+          <span class="ts-val">Ladin Ahşap + Cam</span>
+        </div>
+        <div class="ts-row">
+          <span class="ts-key">Çatı Sistemi</span>
+          <span class="ts-val">Metal Sandviç Panel</span>
+        </div>
+        <div class="ts-row">
+          <span class="ts-key">Zemin</span>
+          <span class="ts-val">Beton + Ankraj</span>
+        </div>
+        <div class="ts-row">
+          <span class="ts-key">Pencere Sistemi</span>
+          <span class="ts-val">Isıcamlı Alüminyum</span>
+        </div>
+        <div class="ts-row">
+          <span class="ts-key">Enerji</span>
+          <span class="ts-val">Güneş Paneli + Grid</span>
+        </div>
+        <div class="ts-row">
+          <span class="ts-key">İnşaat Süresi</span>
+          <span class="ts-val">4.5 Ay</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SONRAKİ PROJE ── -->
+  <section id="next-project">
+    <a href="project-02.html" class="next-link">
+      <img class="next-bg" src="https://picsum.photos/seed/lake902/1400/600" alt="Göl Manzaralı Köşe" loading="lazy">
+      <div class="next-overlay"></div>
+      <div class="next-inner">
+        <span class="next-label">Sonraki Proje</span>
+        <h2 class="next-title">Göl Manzaralı Köşe</h2>
+        <span class="next-arrow">Projeyi İncele &rarr;</span>
+      </div>
+    </a>
+  </section>
+
+  <footer>
+    <span class="f-logo">Doğa Evleri</span>
+    <span class="f-copy">© 2024 &nbsp;·&nbsp; Toprağa köklenen her yapı için</span>
+  </footer>
+
+  <script>
+  // CURSOR
+  const cursorDot=document.getElementById('cursor'),cursorRing=document.getElementById('cursor-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursorDot.style.left=mx+'px';cursorDot.style.top=my+'px';});
+  (function t(){rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;cursorRing.style.left=rx+'px';cursorRing.style.top=ry+'px';requestAnimationFrame(t);})();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursorDot.style.transform='translate(-50%,-50%) scale(2.5)';cursorRing.style.width='58px';cursorRing.style.height='58px';cursorRing.style.borderColor='rgba(200,169,110,0.55)';});
+    el.addEventListener('mouseleave',()=>{cursorDot.style.transform='translate(-50%,-50%) scale(1)';cursorRing.style.width='36px';cursorRing.style.height='36px';cursorRing.style.borderColor='rgba(200,169,110,0.35)';});
+  });
+
+  // NAV
+  const nav=document.getElementById('nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>80),{passive:true});
+
+  // HERO ENTRANCE
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.timeline({delay:0.3})
+    .to('.hero-breadcrumb',{opacity:1,y:0,duration:0.8,ease:'power3.out'})
+    .to('.hero-title',     {opacity:1,y:0,duration:1.2,ease:'power3.out'},'-=0.5')
+    .to('.hero-tags',      {opacity:1,y:0,duration:0.8,ease:'power3.out'},'-=0.7');
+
+  // Hero parallax
+  gsap.to('.hero-img', {
+    yPercent: 20, ease: 'none',
+    scrollTrigger: { trigger:'#project-hero', start:'top top', end:'bottom top', scrub: true }
+  });
+
+  // Specs bar reveal
+  gsap.from('.spec-item', {
+    opacity:0, y:20, duration:0.7, stagger:0.1, ease:'power3.out',
+    scrollTrigger:{ trigger:'#specs-bar', start:'top 85%' }
+  });
+
+  // INTERSECTION OBSERVER
+  const ro=new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{ if(e.isIntersecting) setTimeout(()=>e.target.classList.add('in'),i*80); });
+  },{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+  </script>
+</body>
+</html>

@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nasıl Çalışırız — Doğa Evleri</title>
+  <meta name="description" content="Doğa Evleri ile çalışma süreci. Ücretsiz ön görüşmeden teslime kadar 6 adım. Ortalama 6-8 ay. Karkas çelik, özel tasarım.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root {
+      --color-earth:  #6B4F3A;
+      --color-forest: #1C3A1E;
+      --color-stone:  #8C8C7A;
+      --color-cream:  #F5F0E8;
+      --color-gold:   #C8A96E;
+      --color-dark:   #0F1A0F;
+      --color-text:   #2C2C2C;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--color-dark);
+      color: var(--color-text);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ── */
+    #cursor {
+      width: 8px; height: 8px; background: var(--color-gold);
+      border-radius: 50%; position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.15s var(--ease-out);
+    }
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(200,169,110,0.35);
+      border-radius: 50%; position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), border-color 0.3s;
+    }
+
+    /* ── NAV ── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 2rem 4rem;
+      transition: padding 0.5s var(--ease-out), background 0.5s, backdrop-filter 0.5s, border-bottom 0.5s;
+    }
+    #nav.scrolled {
+      padding: 1.2rem 4rem;
+      background: rgba(15,26,15,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(245,240,232,0.06);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem; font-weight: 300;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--color-cream); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 3rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.72rem; font-weight: 400;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(245,240,232,0.5); text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--color-cream); }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      width: 100%; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; background: var(--color-dark);
+    }
+    #hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    .hero-content {
+      position: relative; z-index: 10;
+      text-align: center; padding: 0 3rem;
+      pointer-events: none; max-width: 900px;
+    }
+    .hero-tag {
+      font-size: 0.68rem; letter-spacing: 0.32em;
+      text-transform: uppercase; color: var(--color-gold);
+      margin-bottom: 2rem; opacity: 0; transform: translateY(15px);
+    }
+    .hero-h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 7vw, 7rem);
+      font-weight: 300; line-height: 1.06;
+      letter-spacing: -0.025em; color: var(--color-cream);
+      margin-bottom: 2.5rem; opacity: 0; transform: translateY(30px);
+    }
+    .hero-h1 em { font-style: italic; color: var(--color-gold); }
+    .hero-sub {
+      font-size: 0.9rem; font-weight: 300; line-height: 1.9;
+      color: rgba(245,240,232,0.42); max-width: 460px;
+      margin: 0 auto 3.5rem; opacity: 0; transform: translateY(15px);
+    }
+
+    /* Timeline pill */
+    .timeline-pill {
+      display: inline-flex; align-items: center; gap: 0;
+      border: 1px solid rgba(200,169,110,0.2);
+      overflow: hidden; opacity: 0; transform: translateY(15px);
+      pointer-events: all;
+    }
+    .pill-item {
+      padding: 0.65rem 1.4rem;
+      font-size: 0.65rem; letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.4);
+      border-right: 1px solid rgba(200,169,110,0.15);
+      white-space: nowrap;
+    }
+    .pill-item:last-child { border-right: none; }
+    .pill-item.highlight { color: var(--color-gold); background: rgba(200,169,110,0.07); }
+
+    .scroll-cue {
+      position: absolute; bottom: 2.8rem; left: 50%;
+      transform: translateX(-50%); z-index: 10;
+      display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+      opacity: 0;
+    }
+    .scroll-cue span {
+      font-size: 0.62rem; letter-spacing: 0.28em;
+      text-transform: uppercase; color: rgba(245,240,232,0.28);
+    }
+    .scroll-line {
+      width: 1px; height: 56px;
+      background: linear-gradient(to bottom, rgba(200,169,110,0.5), transparent);
+      animation: linePulse 2.2s ease-in-out infinite;
+    }
+    @keyframes linePulse { 0%,100%{opacity:.25} 50%{opacity:.9} }
+
+    /* ── OVERVIEW BAND ── */
+    #overview {
+      background: var(--color-cream);
+      padding: 7rem 4rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      background-color: rgba(107,79,58,0.1);
+      border-top: 1px solid rgba(107,79,58,0.1);
+      border-bottom: 1px solid rgba(107,79,58,0.1);
+    }
+    .ov-item {
+      background: var(--color-cream);
+      padding: 3rem;
+      text-align: center;
+    }
+    .ov-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.5rem; font-weight: 300;
+      color: var(--color-earth); line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .ov-unit {
+      font-size: 0.7rem; font-weight: 300;
+      color: var(--color-stone); letter-spacing: 0.05em;
+      display: block; margin-bottom: 0.6rem;
+    }
+    .ov-label {
+      font-size: 0.68rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--color-stone);
+    }
+
+    /* ── TIMELINE ── */
+    #timeline {
+      background: var(--color-dark);
+      padding: 10rem 4rem;
+      position: relative;
+    }
+    .tl-head { margin-bottom: 8rem; }
+    .tl-head .sec-label { color: rgba(140,140,122,0.55); }
+    .tl-head .sec-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4.8rem);
+      font-weight: 300; line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--color-cream);
+      max-width: 620px;
+    }
+    .tl-head .sec-title em { font-style: italic; color: var(--color-gold); }
+
+    /* Vertical line */
+    .tl-spine {
+      position: absolute;
+      left: calc(4rem + 28px);
+      top: 0; bottom: 0;
+      width: 1px;
+      background: rgba(245,240,232,0.06);
+    }
+    .tl-spine-fill {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 0%;
+      background: linear-gradient(to bottom, var(--color-gold), rgba(200,169,110,0.3));
+      transition: height 0.1s linear;
+    }
+
+    .tl-step {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 4rem;
+      margin-bottom: 7rem;
+      position: relative;
+      opacity: 0; transform: translateX(-30px);
+      transition: opacity 0.85s var(--ease-out), transform 0.85s var(--ease-out);
+    }
+    .tl-step.in { opacity: 1; transform: translateX(0); }
+    .tl-step:last-child { margin-bottom: 0; }
+
+    /* Step dot */
+    .tl-dot-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 0.3rem;
+    }
+    .tl-dot {
+      width: 56px; height: 56px; flex-shrink: 0;
+      border: 1px solid rgba(200,169,110,0.25);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; background: var(--color-dark);
+      transition: border-color 0.4s, background 0.4s;
+    }
+    .tl-step.in .tl-dot {
+      border-color: rgba(200,169,110,0.6);
+      background: rgba(200,169,110,0.06);
+    }
+    .tl-dot-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; font-weight: 300;
+      color: rgba(200,169,110,0.5);
+      transition: color 0.4s;
+    }
+    .tl-step.in .tl-dot-num { color: var(--color-gold); }
+
+    /* Step content */
+    .tl-content {}
+    .tl-duration {
+      font-size: 0.62rem; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--color-gold);
+      opacity: 0.7; margin-bottom: 0.7rem;
+    }
+    .tl-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 3vw, 2.6rem);
+      font-weight: 300; color: var(--color-cream);
+      line-height: 1.2; margin-bottom: 1.2rem;
+    }
+    .tl-rule {
+      width: 32px; height: 1px;
+      background: var(--color-gold); margin-bottom: 1.4rem;
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.6s var(--ease-out) 0.3s;
+    }
+    .tl-step.in .tl-rule { transform: scaleX(1); }
+    .tl-body {
+      font-size: 0.88rem; font-weight: 300;
+      line-height: 1.95; color: rgba(245,240,232,0.42);
+      max-width: 560px; margin-bottom: 2rem;
+    }
+
+    /* Detail checklist */
+    .tl-checks {
+      display: flex; flex-direction: column; gap: 0.55rem;
+      margin-bottom: 2rem;
+    }
+    .tl-check {
+      display: flex; align-items: flex-start; gap: 0.9rem;
+      font-size: 0.8rem; font-weight: 300;
+      color: rgba(245,240,232,0.38); line-height: 1.5;
+    }
+    .tl-check::before {
+      content: '';
+      width: 4px; height: 4px;
+      background: var(--color-gold);
+      border-radius: 50%; flex-shrink: 0;
+      margin-top: 0.5rem; opacity: 0.6;
+    }
+
+    /* Callout box */
+    .tl-callout {
+      display: inline-flex; align-items: center; gap: 1rem;
+      padding: 0.9rem 1.5rem;
+      border: 1px solid rgba(200,169,110,0.2);
+      background: rgba(200,169,110,0.04);
+    }
+    .tl-callout-icon {
+      font-size: 0.7rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--color-gold); opacity: 0.8;
+      flex-shrink: 0;
+    }
+    .tl-callout-text {
+      font-size: 0.78rem; font-weight: 300;
+      color: rgba(245,240,232,0.5); line-height: 1.5;
+    }
+
+    /* Inline image */
+    .tl-img {
+      margin-top: 2.5rem;
+      width: 100%; max-width: 560px;
+      aspect-ratio: 16/9; overflow: hidden;
+    }
+    .tl-img img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      filter: saturate(0.6) brightness(0.8);
+      transition: filter 0.8s, transform 0.8s var(--ease-out);
+    }
+    .tl-step:hover .tl-img img {
+      filter: saturate(0.8) brightness(1);
+      transform: scale(1.03);
+    }
+
+    /* ── GUARANTEE ── */
+    #guarantee {
+      background: var(--color-forest);
+      padding: 9rem 4rem;
+    }
+    .guar-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8rem; align-items: start;
+    }
+    .guar-left .sec-label { color: rgba(140,140,122,0.55); }
+    .guar-left .sec-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 4vw, 3.8rem);
+      font-weight: 300; line-height: 1.12;
+      letter-spacing: -0.02em; color: var(--color-cream);
+      margin-bottom: 2rem;
+    }
+    .guar-left .sec-title em { font-style: italic; color: var(--color-gold); }
+    .guar-desc {
+      font-size: 0.88rem; font-weight: 300;
+      line-height: 1.95; color: rgba(245,240,232,0.42);
+      max-width: 420px;
+    }
+    .guar-cards {
+      display: flex; flex-direction: column; gap: 2px;
+      background: rgba(245,240,232,0.05);
+      border: 1px solid rgba(245,240,232,0.05);
+    }
+    .guar-card {
+      background: var(--color-forest);
+      padding: 2.5rem 3rem;
+      display: flex; gap: 2rem; align-items: flex-start;
+      transition: background 0.35s;
+    }
+    .guar-card:hover { background: rgba(28,58,30,0.8); }
+    .guar-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem; font-weight: 300;
+      color: var(--color-gold); line-height: 1;
+      flex-shrink: 0; min-width: 60px;
+    }
+    .guar-unit {
+      font-size: 0.6rem; letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(200,169,110,0.6);
+      display: block; margin-top: 0.3rem;
+    }
+    .guar-content {}
+    .guar-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; font-weight: 400;
+      color: var(--color-cream); margin-bottom: 0.6rem;
+    }
+    .guar-body {
+      font-size: 0.78rem; font-weight: 300;
+      line-height: 1.85; color: rgba(245,240,232,0.38);
+    }
+
+    /* ── QUESTIONS ── */
+    #questions {
+      background: var(--color-cream);
+      padding: 9rem 4rem;
+    }
+    .q-head { margin-bottom: 5rem; }
+    .q-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+      background: rgba(107,79,58,0.1);
+      border: 1px solid rgba(107,79,58,0.1);
+    }
+    .q-card {
+      background: var(--color-cream);
+      padding: 3rem 2.5rem;
+      position: relative; overflow: hidden;
+    }
+    .q-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0;
+      width: 100%; height: 2px;
+      background: var(--color-gold);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.5s var(--ease-out);
+    }
+    .q-card:hover::after { transform: scaleX(1); }
+    .q-icon {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 300;
+      color: rgba(200,169,110,0.25);
+      margin-bottom: 1rem; line-height: 1;
+    }
+    .q-question {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem; font-weight: 400;
+      color: var(--color-earth); line-height: 1.4;
+      margin-bottom: 1.2rem;
+    }
+    .q-answer {
+      font-size: 0.8rem; font-weight: 300;
+      line-height: 1.9; color: #5A5040;
+    }
+
+    /* ── CTA ── */
+    #cta {
+      background: var(--color-dark);
+      padding: 10rem 4rem;
+      text-align: center;
+      position: relative; overflow: hidden;
+    }
+    #cta::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 60%, rgba(28,58,30,0.55) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-label {
+      font-size: 0.68rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: rgba(200,169,110,0.55);
+      margin-bottom: 2rem; position: relative; z-index: 1;
+    }
+    .cta-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 6vw, 5.5rem);
+      font-weight: 300; line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--color-cream);
+      margin-bottom: 3.5rem; position: relative; z-index: 1;
+    }
+    .cta-title em { font-style: italic; color: var(--color-gold); }
+    .cta-actions {
+      display: flex; gap: 1.5rem; justify-content: center;
+      align-items: center; flex-wrap: wrap;
+      position: relative; z-index: 1;
+    }
+    .btn-primary {
+      padding: 1.1rem 3rem;
+      border: 1px solid rgba(200,169,110,0.45);
+      color: var(--color-cream);
+      font-size: 0.78rem; letter-spacing: 0.22em;
+      text-transform: uppercase; text-decoration: none;
+      background: transparent;
+      transition: background 0.4s, border-color 0.4s;
+    }
+    .btn-primary:hover {
+      background: rgba(200,169,110,0.09);
+      border-color: var(--color-gold);
+    }
+    .btn-wa {
+      display: inline-flex; align-items: center; gap: 0.7rem;
+      padding: 1.1rem 2.5rem;
+      border: 1px solid rgba(37,211,102,0.25);
+      color: #4DDB7A;
+      font-size: 0.78rem; letter-spacing: 0.18em;
+      text-transform: uppercase; text-decoration: none;
+      background: rgba(37,211,102,0.06);
+      transition: background 0.35s, border-color 0.35s;
+    }
+    .btn-wa:hover { background: rgba(37,211,102,0.12); border-color: rgba(37,211,102,0.45); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--color-dark); padding: 3.5rem 4rem;
+      border-top: 1px solid rgba(245,240,232,0.05);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .f-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 300;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(245,240,232,0.3);
+    }
+    .f-copy { font-size: 0.68rem; color: rgba(245,240,232,0.18); letter-spacing: 0.08em; }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 0.12s; }
+    .reveal-d2 { transition-delay: 0.24s; }
+    .reveal-d3 { transition-delay: 0.36s; }
+
+    /* shared */
+    .sec-label {
+      font-size: 0.68rem; font-weight: 400;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--color-stone); margin-bottom: 1.5rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      #nav { padding: 1.5rem 2rem; }
+      #nav.scrolled { padding: 1rem 2rem; }
+      .nav-links { display: none; }
+      #overview { grid-template-columns: repeat(2,1fr); padding: 4rem 2rem; }
+      #timeline { padding: 7rem 2rem; }
+      .tl-spine { left: calc(2rem + 28px); }
+      #guarantee { padding: 7rem 2rem; }
+      .guar-grid { grid-template-columns: 1fr; gap: 4rem; }
+      #questions { padding: 7rem 2rem; }
+      .q-grid { grid-template-columns: 1fr; }
+      #cta { padding: 7rem 2rem; }
+      footer { padding: 2.5rem 2rem; flex-direction: column; gap: 1rem; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      body { cursor: auto; }
+      #cursor, #cursor-ring { display: none; }
+      #overview { grid-template-columns: 1fr 1fr; }
+      .tl-step { grid-template-columns: 42px 1fr; gap: 1.5rem; }
+      .tl-dot { width: 42px; height: 42px; }
+      .timeline-pill { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <nav id="nav">
+    <a href="index.html" class="nav-logo">Doğa Evleri</a>
+    <ul class="nav-links">
+      <li><a href="about.html">Felsefemiz</a></li>
+      <li><a href="projects.html">Projeler</a></li>
+      <li><a href="process.html" class="active">Süreç</a></li>
+      <li><a href="contact.html">İletişim</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section id="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-content">
+      <p class="hero-tag">Nasıl Çalışırız</p>
+      <h1 class="hero-h1">İlk adımdan<br>son <em>anahtara</em>.</h1>
+      <p class="hero-sub">Nereden başlayacağınızı bilmiyorsanız bu sayfa sizin için. Her sorunuza cevap, her aşamaya bir açıklama.</p>
+      <div class="timeline-pill">
+        <span class="pill-item highlight">Ücretsiz Görüşme</span>
+        <span class="pill-item">8–10 Hafta Tasarım</span>
+        <span class="pill-item">3.5–5 Ay İnşaat</span>
+        <span class="pill-item highlight">Toplam ~6–8 Ay</span>
+      </div>
+    </div>
+    <div class="scroll-cue" id="scrollCue">
+      <span>Süreci Keşfet</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── OVERVIEW ── -->
+  <div id="overview">
+    <div class="ov-item reveal">
+      <div class="ov-num">6</div>
+      <span class="ov-unit">Adım</span>
+      <p class="ov-label">Baştan Sona</p>
+    </div>
+    <div class="ov-item reveal reveal-d1">
+      <div class="ov-num">6–8</div>
+      <span class="ov-unit">Ay</span>
+      <p class="ov-label">Ortalama Süre</p>
+    </div>
+    <div class="ov-item reveal reveal-d2">
+      <div class="ov-num">0</div>
+      <span class="ov-unit">TL</span>
+      <p class="ov-label">İlk Görüşme</p>
+    </div>
+    <div class="ov-item reveal reveal-d3">
+      <div class="ov-num">1</div>
+      <span class="ov-unit">Kez</span>
+      <p class="ov-label">Yapılır — Doğru Yapılır</p>
+    </div>
+  </div>
+
+  <!-- ── TIMELINE ── -->
+  <section id="timeline">
+    <div class="tl-spine"><div class="tl-spine-fill" id="spineEl"></div></div>
+
+    <div class="tl-head">
+      <p class="sec-label reveal">Adım Adım Süreç</p>
+      <h2 class="sec-title reveal reveal-d1">
+        Her adımın<br>bir <em>sebebi var</em>.
+      </h2>
+    </div>
+
+    <!-- ADIM 1 -->
+    <div class="tl-step" id="step1">
+      <div class="tl-dot-wrap">
+        <div class="tl-dot"><span class="tl-dot-num">01</span></div>
+      </div>
+      <div class="tl-content">
+        <p class="tl-duration">Ücretsiz &nbsp;·&nbsp; 1–2 Saat</p>
+        <h3 class="tl-title">Ön Görüşme</h3>
+        <div class="tl-rule"></div>
+        <p class="tl-body">
+          Her şey bir konuşmayla başlar. Araziniz olsun ya da olmasın,
+          fikriniz netleşmemiş olsun — fark etmez.
+          Bu görüşmede sizi dinler, hayalinizi anlamaya çalışır,
+          gerçekçi bir çerçeve çizeriz. Hiçbir taahhüt gerektirmez,
+          hiçbir ücret alınmaz.
+        </p>
+        <div class="tl-checks">
+          <span class="tl-check">Hayalinizi ve beklentilerinizi konuşuruz</span>
+          <span class="tl-check">Bütçe aralığını birlikte değerlendiririz</span>
+          <span class="tl-check">Arazi varsa ön bilgi alırız, yoksa önerilerde bulunuruz</span>
+          <span class="tl-check">Süreç, maliyet ve zaman hakkında net bilgi veririz</span>
+        </div>
+        <div class="tl-callout">
+          <span class="tl-callout-icon">Not</span>
+          <span class="tl-callout-text">Bu görüşme telefon, WhatsApp görüntülü arama veya yüz yüze yapılabilir.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADIM 2 -->
+    <div class="tl-step" id="step2">
+      <div class="tl-dot-wrap">
+        <div class="tl-dot"><span class="tl-dot-num">02</span></div>
+      </div>
+      <div class="tl-content">
+        <p class="tl-duration">1–2 Hafta</p>
+        <h3 class="tl-title">Arazi Analizi</h3>
+        <div class="tl-rule"></div>
+        <p class="tl-body">
+          Tasarıma başlamadan önce araziye gidilir.
+          Zemin, eğim, bakı, rüzgar yönü, güneş açısı ve çevre dokusu
+          analiz edilir. Bu veriler, tasarımın temel girdileridir.
+          Araziniz bize bir şeyler söyler — biz onu dinleriz.
+        </p>
+        <div class="tl-checks">
+          <span class="tl-check">Zemin etüdü ve taşıma kapasitesi ölçümü</span>
+          <span class="tl-check">Güneş açısı ve gölge haritası analizi</span>
+          <span class="tl-check">Egemen rüzgar yönü ve iklim verisi</span>
+          <span class="tl-check">Yasal durum ve imar durumu kontrolü</span>
+          <span class="tl-check">Fotoğraf ve video belgeleme</span>
+        </div>
+        <div class="tl-img">
+          <img src="https://picsum.photos/seed/land_analysis/900/506" alt="Arazi analizi sahası" loading="lazy">
+        </div>
+      </div>
+    </div>
+
+    <!-- ADIM 3 -->
+    <div class="tl-step" id="step3">
+      <div class="tl-dot-wrap">
+        <div class="tl-dot"><span class="tl-dot-num">03</span></div>
+      </div>
+      <div class="tl-content">
+        <p class="tl-duration">6–8 Hafta</p>
+        <h3 class="tl-title">Tasarım & Onay</h3>
+        <div class="tl-rule"></div>
+        <p class="tl-body">
+          Arazi analizi ve hayalinizle birlikte tasarım süreci başlar.
+          Önce eskizler, ardından 3D görselleştirme, ardından teknik çizimler.
+          Her aşamada sizinle paylaşılır, değiştirilir, üzerine konuşulur.
+          Onaylamadığınız hiçbir şeyle ilerlenmez.
+        </p>
+        <div class="tl-checks">
+          <span class="tl-check">Konsept eskizler ve kat planı alternatifleri</span>
+          <span class="tl-check">3D görselleştirme ile yaşam deneyimi önizlemesi</span>
+          <span class="tl-check">Cephe, malzeme ve renk seçimleri</span>
+          <span class="tl-check">Statik ve mekanik proje hazırlığı</span>
+          <span class="tl-check">Ruhsat dosyasının hazırlanması</span>
+        </div>
+        <div class="tl-callout">
+          <span class="tl-callout-icon">Revizyon</span>
+          <span class="tl-callout-text">Tasarım sürecinde sınırsız revizyon hakkı tanınır. Memnun kalmadan bir sonraki adıma geçilmez.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADIM 4 -->
+    <div class="tl-step" id="step4">
+      <div class="tl-dot-wrap">
+        <div class="tl-dot"><span class="tl-dot-num">04</span></div>
+      </div>
+      <div class="tl-content">
+        <p class="tl-duration">3.5–5 Ay</p>
+        <h3 class="tl-title">İnşaat</h3>
+        <div class="tl-rule"></div>
+        <p class="tl-body">
+          Temel atılmasından çatı kapanmasına kadar her aşama düzenli
+          fotoğraf ve video ile belgelenir, size iletilir.
+          Şantiyeye istediğiniz zaman gelebilirsiniz —
+          ve her hafta ilerleme raporu paylaşılır.
+          Çelik karkas sistemi, araziye minimum müdahaleyle kurulur.
+        </p>
+        <div class="tl-checks">
+          <span class="tl-check">Temel ve ankraj — zemin koşuluna özel çözüm</span>
+          <span class="tl-check">Çelik karkas montajı</span>
+          <span class="tl-check">Yalıtım, cephe kaplama ve çatı sistemi</span>
+          <span class="tl-check">Cam sistemleri ve doğramalar</span>
+          <span class="tl-check">Elektrik, sıhhi tesisat ve ısıtma altyapısı</span>
+          <span class="tl-check">İç mekan kaplama ve son kat işleri</span>
+        </div>
+        <div class="tl-img">
+          <img src="https://picsum.photos/seed/construction_01/900/506" alt="Karkas çelik inşaat aşaması" loading="lazy">
+        </div>
+      </div>
+    </div>
+
+    <!-- ADIM 5 -->
+    <div class="tl-step" id="step5">
+      <div class="tl-dot-wrap">
+        <div class="tl-dot"><span class="tl-dot-num">05</span></div>
+      </div>
+      <div class="tl-content">
+        <p class="tl-duration">1–2 Hafta</p>
+        <h3 class="tl-title">Kontrol & Test</h3>
+        <div class="tl-rule"></div>
+        <p class="tl-body">
+          Teslimden önce tüm sistemler — elektrik, ısıtma, sıhhi tesisat,
+          havalandırma — eksiksiz test edilir. Bağımsız kontrol listesiyle
+          her nokta işaretlenir. Siz de bu sürece dahil olursunuz;
+          birlikte gezeriz, birlikte onaylarız.
+        </p>
+        <div class="tl-checks">
+          <span class="tl-check">Elektrik ve aydınlatma testleri</span>
+          <span class="tl-check">Su yalıtımı ve çatı sızdırmazlık kontrolü</span>
+          <span class="tl-check">Isıtma sistemi performans testi</span>
+          <span class="tl-check">Kapı ve pencere mekanizmaları kontrolü</span>
+          <span class="tl-check">Son gezinti — sizinle birlikte</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADIM 6 -->
+    <div class="tl-step" id="step6">
+      <div class="tl-dot-wrap">
+        <div class="tl-dot"><span class="tl-dot-num">06</span></div>
+      </div>
+      <div class="tl-content">
+        <p class="tl-duration">Son Gün</p>
+        <h3 class="tl-title">Teslim</h3>
+        <div class="tl-rule"></div>
+        <p class="tl-body">
+          Sadece anahtarı değil, o evin dilini teslim ederiz.
+          Hangi sabah ışık nereden girer, hangi akşam hangi pencereye bakılır,
+          kış aylarında nelere dikkat edilir — bunların hepsini anlatırız.
+          Ve teslimden sonra da buradayız.
+        </p>
+        <div class="tl-checks">
+          <span class="tl-check">Tüm teknik dokümanlar ve garantiler teslim edilir</span>
+          <span class="tl-check">Bakım ve kullanım kılavuzu hazırlanır</span>
+          <span class="tl-check">Anahtar ve sistemlerin kullanımı açıklanır</span>
+          <span class="tl-check">İlk yıl için servis desteği başlar</span>
+        </div>
+        <div class="tl-callout">
+          <span class="tl-callout-icon">Garanti</span>
+          <span class="tl-callout-text">Yapı iskeleti 10 yıl, mekanik ve elektrik sistemler 2 yıl garantilidir.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── GARANTİ ── -->
+  <section id="guarantee">
+    <div class="guar-grid">
+      <div class="guar-left">
+        <p class="sec-label reveal">Garanti & Destek</p>
+        <h2 class="sec-title reveal reveal-d1">
+          Teslimden sonra<br>
+          da <em>buradayız</em>.
+        </h2>
+        <p class="guar-desc reveal reveal-d2">
+          Bir evi teslim ettiğimizde sorumluluk bitmez — başlar.
+          Yıllar sonra bir sorun yaşarsanız, Deniz'i arayabilirsiniz.
+          Telefonu açar.
+        </p>
+      </div>
+      <div class="guar-cards reveal">
+        <div class="guar-card">
+          <div>
+            <div class="guar-num">10</div>
+            <span class="guar-unit">Yıl</span>
+          </div>
+          <div class="guar-content">
+            <h4 class="guar-title">Yapısal Garanti</h4>
+            <p class="guar-body">Çelik karkas iskelet, temel ve bağlantı noktaları. Deprem, yük ve iklim koşullarına karşı 10 yıl tam garanti.</p>
+          </div>
+        </div>
+        <div class="guar-card">
+          <div>
+            <div class="guar-num">2</div>
+            <span class="guar-unit">Yıl</span>
+          </div>
+          <div class="guar-content">
+            <h4 class="guar-title">Sistem Garantisi</h4>
+            <p class="guar-body">Elektrik tesisatı, sıhhi tesisat, ısıtma ve havalandırma sistemleri. Arıza durumunda 48 saat içinde müdahale.</p>
+          </div>
+        </div>
+        <div class="guar-card">
+          <div>
+            <div class="guar-num">1</div>
+            <span class="guar-unit">Yıl</span>
+          </div>
+          <div class="guar-content">
+            <h4 class="guar-title">Ücretsiz Servis</h4>
+            <p class="guar-body">Teslim tarihinden itibaren ilk 12 ay boyunca tüm bakım ziyaretleri ve küçük onarımlar ücretsizdir.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SORULAR ── -->
+  <section id="questions">
+    <div class="q-head">
+      <p class="sec-label reveal">Aklınızdaki Sorular</p>
+      <h2 class="reveal reveal-d1" style="font-family:'Cormorant Garamond',serif;font-size:clamp(2.4rem,5vw,4.5rem);font-weight:300;line-height:1.1;letter-spacing:-0.02em;color:var(--color-earth);max-width:620px;margin-bottom:5rem;">
+        Arazi sahibinin aklında<br>
+        <em>ne vardır?</em>
+      </h2>
+    </div>
+    <div class="q-grid">
+      <div class="q-card reveal">
+        <div class="q-icon">"</div>
+        <p class="q-question">Arazim tarla vasfında, yine de ev yapabilir miyim?</p>
+        <p class="q-answer">Tarla vasfındaki arazilerde yapılaşma koşulları farklıdır. Ancak bazı durumlarda özel izinler ve muafiyetler mümkündür. Bunu birlikte değerlendiriyoruz — arazinizin durumuna göre yol haritası çıkartıyoruz.</p>
+      </div>
+      <div class="q-card reveal reveal-d1">
+        <div class="q-icon">"</div>
+        <p class="q-question">Uzak bir arazide de çalışıyor musunuz?</p>
+        <p class="q-answer">Evet. Türkiye'nin farklı bölgelerinde projeler yürütüyoruz. Ulaşım zorluğu olan araziler için lojistik planlamayı baştan yapıyoruz. Mesafe, kaliteden ödün vermek için bir sebep değildir.</p>
+      </div>
+      <div class="q-card reveal">
+        <div class="q-icon">"</div>
+        <p class="q-question">Bütçem kesin değil, yine de görüşebilir miyiz?</p>
+        <p class="q-answer">Kesinlikle. İlk görüşmenin amacı zaten bütçeyi birlikte netleştirmektir. Hayalinizi anlatın, biz gerçekçi bir maliyet çerçevesi çizelim. Rakam sürpriz olmaz.</p>
+      </div>
+      <div class="q-card reveal reveal-d1">
+        <div class="q-icon">"</div>
+        <p class="q-question">Şehirde yaşıyorum, inşaatı nasıl takip edeceğim?</p>
+        <p class="q-answer">Her hafta fotoğraf ve video raporu paylaşılır. Kritik aşamalarda ziyaret önerilir ama zorunlu değildir. İstediğiniz zaman arayabilirsiniz. Şantiye kamerası talep edenler için kurulum da yapıyoruz.</p>
+      </div>
+      <div class="q-card reveal">
+        <div class="q-icon">"</div>
+        <p class="q-question">Tasarımı ben mi belirleyeceğim, yoksa siz mi?</p>
+        <p class="q-answer">İkisi birlikte. Siz hayatınızı anlatırsınız; biz onu arazi, iklim ve teknik gerçeklerle buluştururuz. Son karar her zaman sizindir — hiçbir şey onaysız uygulanmaz.</p>
+      </div>
+      <div class="q-card reveal reveal-d1">
+        <div class="q-icon">"</div>
+        <p class="q-question">Kışın inşaat devam eder mi?</p>
+        <p class="q-answer">Çelik karkas sistemin büyük avantajı kış aylarında da çalışılabilmesidir. Beton gerektiren işlerde don eşiğine dikkat edilir, ama çelik montaj büyük ölçüde mevsimden bağımsızdır.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ── -->
+  <section id="cta">
+    <p class="cta-label reveal">İlk Adım</p>
+    <h2 class="cta-title reveal reveal-d1">
+      Ücretsiz ön görüşme<br>
+      için <em>yazın.</em>
+    </h2>
+    <div class="cta-actions reveal reveal-d2">
+      <a href="contact.html" class="btn-primary">İletişim Formu</a>
+      <a href="https://wa.me/905512635033" class="btn-wa" target="_blank" rel="noopener noreferrer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp — +90 551 263 5033
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    <span class="f-logo">Doğa Evleri</span>
+    <span class="f-copy">© 2024 &nbsp;·&nbsp; Toprağa köklenen her yapı için</span>
+  </footer>
+
+  <script>
+  // CURSOR
+  const cursorDot=document.getElementById('cursor'),cursorRing=document.getElementById('cursor-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursorDot.style.left=mx+'px';cursorDot.style.top=my+'px';});
+  (function t(){rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;cursorRing.style.left=rx+'px';cursorRing.style.top=ry+'px';requestAnimationFrame(t);})();
+  document.querySelectorAll('a,button,.q-card').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursorDot.style.transform='translate(-50%,-50%) scale(2.5)';cursorRing.style.width='58px';cursorRing.style.height='58px';cursorRing.style.borderColor='rgba(200,169,110,0.55)';});
+    el.addEventListener('mouseleave',()=>{cursorDot.style.transform='translate(-50%,-50%) scale(1)';cursorRing.style.width='36px';cursorRing.style.height='36px';cursorRing.style.borderColor='rgba(200,169,110,0.35)';});
+  });
+
+  // NAV
+  const nav=document.getElementById('nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>80),{passive:true});
+
+  // THREE.JS HERO — subtle particle ground
+  (function heroScene(){
+    const canvas=document.getElementById('hero-canvas');
+    const renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    renderer.setClearColor(0x0F1A0F,1);
+    const W=()=>canvas.offsetWidth, H=()=>canvas.offsetHeight;
+    renderer.setSize(W(),H());
+    const scene=new THREE.Scene();
+    scene.fog=new THREE.FogExp2(0x0A140A,0.022);
+    const camera=new THREE.PerspectiveCamera(55,W()/H(),0.1,150);
+    camera.position.set(0,8,20);
+    camera.lookAt(0,0,0);
+
+    // Ground grid
+    const grid=new THREE.GridHelper(60,30,0x1A3A1A,0x1A3A1A);
+    grid.material.transparent=true; grid.material.opacity=0.2;
+    scene.add(grid);
+
+    // Floating number planes — "6 adım" visual hint
+    // Abstract timeline nodes
+    for(let i=0;i<6;i++){
+      const geo=new THREE.BoxGeometry(0.2,0.2,0.2);
+      const mat=new THREE.MeshBasicMaterial({color:0xC8A96E,transparent:true,opacity:0.4});
+      const box=new THREE.Mesh(geo,mat);
+      const angle=(i/6)*Math.PI*2;
+      box.position.set(Math.cos(angle)*5, 0.1, Math.sin(angle)*5);
+      scene.add(box);
+
+      // Line to center
+      const pts=new Float32Array([0,0.1,0, box.position.x,0.1,box.position.z]);
+      const lg=new THREE.BufferGeometry();
+      lg.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+      const line=new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0x2D5A2E,transparent:true,opacity:0.3}));
+      scene.add(line);
+    }
+
+    // Particles
+    const pCount=300;
+    const pPos=new Float32Array(pCount*3);
+    const pVel=new Float32Array(pCount);
+    for(let i=0;i<pCount;i++){
+      pPos[i*3]=(Math.random()-0.5)*50;
+      pPos[i*3+1]=Math.random()*15;
+      pPos[i*3+2]=(Math.random()-0.5)*40;
+      pVel[i]=0.006+Math.random()*0.014;
+    }
+    const pGeo=new THREE.BufferGeometry();
+    pGeo.setAttribute('position',new THREE.Float32BufferAttribute(pPos,3));
+    const pts=new THREE.Points(pGeo,new THREE.PointsMaterial({color:0xC8A96E,size:0.06,transparent:true,opacity:0.4}));
+    scene.add(pts);
+
+    window.addEventListener('resize',()=>{camera.aspect=W()/H();camera.updateProjectionMatrix();renderer.setSize(W(),H());});
+
+    const posAttr=pGeo.attributes.position;
+    let t=0;
+    (function tick(){
+      requestAnimationFrame(tick); t+=0.004;
+      for(let i=0;i<pCount;i++){
+        posAttr.array[i*3+1]+=pVel[i];
+        if(posAttr.array[i*3+1]>16){posAttr.array[i*3+1]=0;}
+      }
+      posAttr.needsUpdate=true;
+      camera.position.x=Math.sin(t*0.05)*2;
+      camera.lookAt(0,0,0);
+      renderer.render(scene,camera);
+    })();
+  })();
+
+  // GSAP
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.timeline({delay:0.3})
+    .to('.hero-tag',      {opacity:1,y:0,duration:0.9,ease:'power3.out'})
+    .to('.hero-h1',       {opacity:1,y:0,duration:1.2,ease:'power3.out'},'-=0.6')
+    .to('.hero-sub',      {opacity:1,y:0,duration:0.9,ease:'power3.out'},'-=0.7')
+    .to('.timeline-pill', {opacity:1,y:0,duration:0.7,ease:'power3.out'},'-=0.5')
+    .to('#scrollCue',     {opacity:1,    duration:0.6, ease:'power2.out'},'-=0.3');
+
+  // Spine fill on scroll
+  const spine=document.getElementById('spineEl');
+  const tlSection=document.getElementById('timeline');
+  ScrollTrigger.create({
+    trigger: tlSection,
+    start: 'top 80%',
+    end: 'bottom 20%',
+    scrub: 1,
+    onUpdate(self){ spine.style.height=(self.progress*100)+'%'; }
+  });
+
+  // Timeline steps
+  const steps=document.querySelectorAll('.tl-step');
+  const stepObserver=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+  },{threshold:0.15});
+  steps.forEach(s=>stepObserver.observe(s));
+
+  // General reveal
+  const ro=new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{ if(e.isIntersecting) setTimeout(()=>e.target.classList.add('in'),i*80); });
+  },{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+  </script>
+</body>
+</html>

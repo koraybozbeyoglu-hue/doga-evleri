@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Doğa Evleri — Toprağa Köklenen Yaşam</title>
+  <meta name="description" content="Şehrin gürültüsünden değil, hayatın kendisinden vazgeçmeden. Karkas çelik, tamamen özel tasarım doğa evleri.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root {
+      --color-earth:  #6B4F3A;
+      --color-forest: #1C3A1E;
+      --color-stone:  #8C8C7A;
+      --color-cream:  #F5F0E8;
+      --color-gold:   #C8A96E;
+      --color-dark:   #0F1A0F;
+      --color-text:   #2C2C2C;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--color-dark);
+      color: var(--color-text);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ─────────────────────────────── */
+    #cursor {
+      width: 8px; height: 8px;
+      background: var(--color-gold);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s var(--ease-out), opacity 0.3s;
+    }
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(200,169,110,0.35);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), border-color 0.3s;
+    }
+    body:hover #cursor { opacity: 1; }
+
+    /* ── NAV ─────────────────────────────────── */
+    #nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 4rem;
+      transition: padding 0.5s var(--ease-out), background 0.5s, backdrop-filter 0.5s, border-bottom 0.5s;
+    }
+    #nav.scrolled {
+      padding: 1.2rem 4rem;
+      background: rgba(15,26,15,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(245,240,232,0.06);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem;
+      font-weight: 300;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--color-cream);
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 3rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.5);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--color-cream); }
+
+    /* ── HERO ────────────────────────────────── */
+    #hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--color-dark);
+    }
+    #hero-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      pointer-events: none;
+      padding: 0 2rem;
+    }
+    .hero-tag {
+      font-size: 0.68rem;
+      font-weight: 400;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .hero-h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 7.5vw, 7.5rem);
+      font-weight: 300;
+      line-height: 1.04;
+      letter-spacing: -0.025em;
+      color: var(--color-cream);
+      margin-bottom: 2rem;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    .hero-h1 em { font-style: italic; color: var(--color-gold); }
+    .hero-sub {
+      font-size: 0.9rem;
+      font-weight: 300;
+      line-height: 1.9;
+      letter-spacing: 0.02em;
+      color: rgba(245,240,232,0.45);
+      max-width: 400px;
+      margin: 0 auto 3.5rem;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .hero-cta {
+      display: inline-block;
+      padding: 1.1rem 3.2rem;
+      border: 1px solid rgba(200,169,110,0.45);
+      color: var(--color-cream);
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      text-decoration: none;
+      background: transparent;
+      transition: background 0.4s var(--ease-out), border-color 0.4s;
+      pointer-events: all;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .hero-cta:hover {
+      background: rgba(200,169,110,0.09);
+      border-color: var(--color-gold);
+    }
+    .scroll-cue {
+      position: absolute;
+      bottom: 2.8rem;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      opacity: 0;
+    }
+    .scroll-cue span {
+      font-size: 0.62rem;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.28);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 56px;
+      background: linear-gradient(to bottom, rgba(200,169,110,0.5), transparent);
+      animation: linePulse 2.2s ease-in-out infinite;
+    }
+    @keyframes linePulse {
+      0%, 100% { opacity: 0.25; }
+      50% { opacity: 0.9; }
+    }
+
+    /* ── SCROLL STORY ────────────────────────── */
+    #story { position: relative; background: var(--color-dark); }
+    .story-pin { height: 600vh; position: relative; }
+    .story-sticky {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #story-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .story-step {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%) translateX(0px);
+      max-width: 380px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .story-step:nth-child(odd)  { left: 5vw; }
+    .story-step:nth-child(even) { right: 5vw; text-align: right; }
+    .step-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5.5rem;
+      font-weight: 300;
+      color: rgba(200,169,110,0.1);
+      line-height: 1;
+      margin-bottom: 0.8rem;
+    }
+    .step-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.9rem, 3vw, 2.9rem);
+      font-weight: 300;
+      color: var(--color-cream);
+      line-height: 1.2;
+      margin-bottom: 1rem;
+    }
+    .step-body {
+      font-size: 0.83rem;
+      font-weight: 300;
+      line-height: 1.95;
+      letter-spacing: 0.015em;
+      color: rgba(245,240,232,0.45);
+    }
+
+    /* ── DIFFERENCE ──────────────────────────── */
+    #difference {
+      background: var(--color-cream);
+      padding: 10rem 4rem;
+    }
+    .sec-label {
+      font-size: 0.68rem;
+      font-weight: 400;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--color-stone);
+      margin-bottom: 1.5rem;
+    }
+    .sec-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.6rem, 5vw, 5rem);
+      font-weight: 300;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--color-earth);
+      margin-bottom: 5rem;
+      max-width: 680px;
+    }
+    .sec-title em { font-style: italic; color: var(--color-forest); }
+
+    .diff-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: rgba(107,79,58,0.12);
+      border: 1px solid rgba(107,79,58,0.12);
+    }
+    .diff-card {
+      background: var(--color-cream);
+      padding: 3rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .diff-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: var(--color-gold);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.55s var(--ease-out);
+    }
+    .diff-card:hover::after { transform: scaleX(1); }
+    .diff-vs {
+      font-size: 0.62rem;
+      font-weight: 400;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--color-stone);
+      margin-bottom: 0.7rem;
+    }
+    .diff-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem;
+      font-weight: 400;
+      color: var(--color-earth);
+      line-height: 1.3;
+      margin-bottom: 1.4rem;
+    }
+    .diff-rule {
+      width: 36px; height: 1px;
+      background: var(--color-gold);
+      margin-bottom: 1.4rem;
+    }
+    .diff-body {
+      font-size: 0.8rem;
+      font-weight: 300;
+      line-height: 1.95;
+      color: #5A5040;
+    }
+
+    /* ── PROJECTS ────────────────────────────── */
+    #projects {
+      background: var(--color-dark);
+      padding: 10rem 0;
+      overflow: hidden;
+    }
+    .projects-head {
+      padding: 0 4rem;
+      margin-bottom: 4.5rem;
+    }
+    .projects-head .sec-label { color: rgba(140,140,122,0.55); }
+    .projects-head .sec-title { color: var(--color-cream); }
+    .projects-head .sec-title em { color: var(--color-gold); }
+
+    .gallery-track {
+      display: flex;
+      gap: 1.8rem;
+      padding: 0 4rem 2rem;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      cursor: grab;
+    }
+    .gallery-track::-webkit-scrollbar { display: none; }
+    .gallery-track:active { cursor: grabbing; }
+
+    .g-item {
+      flex: 0 0 auto;
+      width: clamp(280px, 32vw, 460px);
+      scroll-snap-align: start;
+    }
+    .g-img {
+      width: 100%;
+      aspect-ratio: 3 / 4;
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 1.4rem;
+    }
+    .g-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: saturate(0.65) brightness(0.8);
+      transition: transform 0.9s var(--ease-out), filter 0.9s;
+      display: block;
+    }
+    .g-item:hover .g-img img {
+      transform: scale(1.06);
+      filter: saturate(0.85) brightness(1);
+    }
+    .g-tag {
+      font-size: 0.63rem;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      margin-bottom: 0.45rem;
+    }
+    .g-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.45rem;
+      font-weight: 300;
+      color: var(--color-cream);
+      line-height: 1.3;
+      margin-bottom: 0.4rem;
+    }
+    .g-meta {
+      font-size: 0.72rem;
+      font-weight: 300;
+      color: rgba(245,240,232,0.3);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── CONTACT ─────────────────────────────── */
+    #contact {
+      background: var(--color-forest);
+      padding: 10rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+    #contact::before {
+      content: '';
+      position: absolute;
+      top: -40%; left: -15%;
+      width: 70%; height: 200%;
+      background: radial-gradient(ellipse, rgba(200,169,110,0.05) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7rem;
+      align-items: start;
+      position: relative;
+      z-index: 1;
+    }
+    .contact-info .sec-label { color: rgba(140,140,122,0.55); }
+    .contact-info .sec-title { color: var(--color-cream); margin-bottom: 1.8rem; }
+    .contact-info .sec-title em { color: var(--color-gold); }
+    .contact-desc {
+      font-size: 0.88rem;
+      font-weight: 300;
+      line-height: 1.95;
+      color: rgba(245,240,232,0.45);
+      margin-bottom: 2.8rem;
+      max-width: 400px;
+    }
+    .wa-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 1rem 2rem;
+      border: 1px solid rgba(37,211,102,0.22);
+      background: rgba(37,211,102,0.07);
+      color: #4DDB7A;
+      font-size: 0.76rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.35s, border-color 0.35s;
+    }
+    .wa-btn:hover {
+      background: rgba(37,211,102,0.13);
+      border-color: rgba(37,211,102,0.4);
+    }
+    .wa-btn svg { flex-shrink: 0; }
+
+    .c-form { display: flex; flex-direction: column; gap: 1.6rem; }
+    .f-group { display: flex; flex-direction: column; gap: 0.55rem; }
+    .f-group label {
+      font-size: 0.63rem;
+      font-weight: 400;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.35);
+    }
+    .f-group input,
+    .f-group select,
+    .f-group textarea {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(245,240,232,0.14);
+      padding: 0.7rem 0;
+      color: var(--color-cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 300;
+      outline: none;
+      transition: border-color 0.3s;
+      width: 100%;
+    }
+    .f-group input::placeholder,
+    .f-group textarea::placeholder { color: rgba(245,240,232,0.18); }
+    .f-group input:focus,
+    .f-group select:focus,
+    .f-group textarea:focus { border-bottom-color: var(--color-gold); }
+    .f-group select {
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    .f-group select option {
+      background: var(--color-forest);
+      color: var(--color-cream);
+    }
+    .f-group textarea { resize: none; min-height: 90px; }
+    .f-submit {
+      align-self: flex-start;
+      padding: 1rem 2.8rem;
+      background: transparent;
+      border: 1px solid rgba(200,169,110,0.38);
+      color: var(--color-cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: background 0.35s, border-color 0.35s;
+    }
+    .f-submit:hover {
+      background: rgba(200,169,110,0.09);
+      border-color: var(--color-gold);
+    }
+    .f-submit.sent {
+      border-color: rgba(140,180,100,0.55);
+      color: rgba(140,180,100,0.85);
+    }
+
+    /* ── FOOTER ──────────────────────────────── */
+    footer {
+      background: var(--color-dark);
+      padding: 3.5rem 4rem;
+      border-top: 1px solid rgba(245,240,232,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .f-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem;
+      font-weight: 300;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.3);
+    }
+    .f-copy {
+      font-size: 0.68rem;
+      color: rgba(245,240,232,0.18);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── REVEAL ──────────────────────────────── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.85s var(--ease-out), transform 0.85s var(--ease-out);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 0.1s; }
+    .reveal-d2 { transition-delay: 0.22s; }
+    .reveal-d3 { transition-delay: 0.34s; }
+
+    /* ── RESPONSIVE ──────────────────────────── */
+    @media (max-width: 900px) {
+      #nav { padding: 1.5rem 2rem; }
+      #nav.scrolled { padding: 1rem 2rem; }
+      .nav-links { display: none; }
+      #difference { padding: 6rem 2rem; }
+      .diff-grid { grid-template-columns: 1fr; }
+      .projects-head { padding: 0 2rem; }
+      .gallery-track { padding: 0 2rem 1.5rem; }
+      #contact { padding: 6rem 2rem; }
+      .contact-grid { grid-template-columns: 1fr; gap: 4rem; }
+      footer { padding: 2.5rem 2rem; flex-direction: column; gap: 1rem; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      .story-step { left: 1.5rem !important; right: 1.5rem !important; text-align: left !important; max-width: calc(100% - 3rem) !important; }
+      body { cursor: auto; }
+      #cursor, #cursor-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- ── NAV ── -->
+  <nav id="nav">
+    <a href="index.html" class="nav-logo">Doğa Evleri</a>
+    <ul class="nav-links">
+      <li><a href="about.html">Felsefemiz</a></li>
+      <li><a href="projects.html">Projeler</a></li>
+      <li><a href="process.html">Süreç</a></li>
+      <li><a href="contact.html">İletişim</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HERO ── -->
+  <section id="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-content">
+      <p class="hero-tag">Karkas Çelik &nbsp;·&nbsp; Özel Tasarım &nbsp;·&nbsp; Doğayla Bütünleşik</p>
+      <h1 class="hero-h1">Doğanın içinde,<br><em>modern ruhla.</em></h1>
+      <p class="hero-sub">Şehrin gürültüsünden değil, hayatın kendisinden vazgeçmeden. Her arazi için, her hayal için özel tasarlanan yapılar.</p>
+      <a href="#contact" class="hero-cta">Hayalini Keşfet</a>
+    </div>
+    <div class="scroll-cue" id="scrollCue">
+      <span>Keşfet</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── SCROLL STORY ── -->
+  <section id="story">
+    <div class="story-pin">
+      <div class="story-sticky">
+        <canvas id="story-canvas"></canvas>
+
+        <div class="story-step" id="step1">
+          <div class="step-num">01</div>
+          <h3 class="step-title">Toprağı<br>tanıyoruz.</h3>
+          <p class="step-body">Her yapı, o arazinin ruhunu taşır. Önce toprağı dinler, güneşin yönünü hesaplar, ağaçların gölgesini ölçeriz.</p>
+        </div>
+
+        <div class="story-step" id="step2">
+          <div class="step-num">02</div>
+          <h3 class="step-title">İskelet<br>yükseliyor.</h3>
+          <p class="step-body">Çelik karkas, yapının omurgası. Depreme dayanıklı, çevreyle uyumlu, yüzyıllar boyu ayakta kalacak.</p>
+        </div>
+
+        <div class="story-step" id="step3">
+          <div class="step-num">03</div>
+          <h3 class="step-title">Form<br>beliriyor.</h3>
+          <p class="step-body">Büyük cam yüzeyler, doğal malzemeler ve özel detaylarla hayal ettiğiniz mekân şekillenmeye başlar.</p>
+        </div>
+
+        <div class="story-step" id="step4">
+          <div class="step-num">04</div>
+          <h3 class="step-title">Doğayla<br>bütünleşiyor.</h3>
+          <p class="step-body">Tamamlanan yapı, çevresiyle çatışmaz — onu tamamlar. Sabah sisi, yağmur, kar: hepsi bu evin parçasıdır.</p>
+        </div>
+
+        <div class="story-step" id="step5">
+          <div class="step-num">05</div>
+          <h3 class="step-title">Yaşam<br>başlıyor.</h3>
+          <p class="step-body">İçeriden süzülen ışık, dışarıdan görünen sıcaklık. Burası artık sadece bir yapı değil — bir hayatın evidir.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DIFFERENCE ── -->
+  <section id="difference">
+    <p class="sec-label reveal">Neden Farklıyız</p>
+    <h2 class="sec-title reveal reveal-d1">
+      Konteyner de değil,<br>
+      prefabrik de.<br>
+      <em>Tamamen sizin.</em>
+    </h2>
+
+    <div class="diff-grid">
+      <div class="diff-card reveal reveal-d1">
+        <p class="diff-vs">Konteyner Evler ile Karşılaştırma</p>
+        <h3 class="diff-title">Standart kutular,<br>sınırlı hayaller.</h3>
+        <div class="diff-rule"></div>
+        <p class="diff-body">Konteyner evler sabit modüller üzerine inşa edilir. Arazinizin şekli, bakış yönü, rüzgar durumu — bunların hiçbiri değiştirilemez kalıba yansımaz. Bizde her ev, sıfırdan o arazi için doğar.</p>
+      </div>
+      <div class="diff-card reveal reveal-d2">
+        <p class="diff-vs">Prefabrik Sistemler ile Karşılaştırma</p>
+        <h3 class="diff-title">Fabrika çıkışı,<br>ruhsuz yapılar.</h3>
+        <div class="diff-rule"></div>
+        <p class="diff-body">Prefabrik sistemler hızlı ama kimliksizdir. Yüzlerce kişiye aynı evi verirler. Bizim işimizin özü bu farktan doğar: sizin araziniz, sizin yaşamınız, sadece sizin eviniz.</p>
+      </div>
+      <div class="diff-card reveal reveal-d3">
+        <p class="diff-vs">Klasik Müteahhit ile Karşılaştırma</p>
+        <h3 class="diff-title">Beton bloklar,<br>doğayla kavga.</h3>
+        <div class="diff-rule"></div>
+        <p class="diff-body">Geleneksel inşaat çoğunlukla doğaya rağmen inşa eder. Biz doğayla birlikte tasarlarız. Çelik karkas, doğal malzemeler ve büyük cam yüzeyler — içi dışarısı gibi, dışarısı içi gibi.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PROJECTS ── -->
+  <section id="projects">
+    <div class="projects-head">
+      <p class="sec-label reveal">Projelerimiz</p>
+      <h2 class="sec-title reveal reveal-d1">Her arazi bir hikaye,<br>her ev bir <em>şiir</em>.</h2>
+    </div>
+
+    <div class="gallery-track" id="gallery">
+      <div class="g-item">
+        <div class="g-img"><img src="https://picsum.photos/seed/forest901/600/800" alt="Çam ormanı içinde ev" loading="lazy"></div>
+        <p class="g-tag">Bolu &nbsp;·&nbsp; 2023</p>
+        <h3 class="g-title">Çam Ormanı Projesi</h3>
+        <p class="g-meta">120 m² &nbsp;·&nbsp; Çelik Karkas &nbsp;·&nbsp; 4.5 Ay</p>
+      </div>
+      <div class="g-item">
+        <div class="g-img"><img src="https://picsum.photos/seed/lake902/600/800" alt="Göl manzaralı ev" loading="lazy"></div>
+        <p class="g-tag">Abant &nbsp;·&nbsp; 2023</p>
+        <h3 class="g-title">Göl Manzaralı Köşe</h3>
+        <p class="g-meta">95 m² &nbsp;·&nbsp; Çelik Karkas &nbsp;·&nbsp; 3.5 Ay</p>
+      </div>
+      <div class="g-item">
+        <div class="g-img"><img src="https://picsum.photos/seed/valley903/600/800" alt="Vadi kenarı ev" loading="lazy"></div>
+        <p class="g-tag">Sapanca &nbsp;·&nbsp; 2024</p>
+        <h3 class="g-title">Vadi Kenarı Sığınak</h3>
+        <p class="g-meta">145 m² &nbsp;·&nbsp; Çelik Karkas &nbsp;·&nbsp; 5 Ay</p>
+      </div>
+      <div class="g-item">
+        <div class="g-img"><img src="https://picsum.photos/seed/river904/600/800" alt="Dere kenarı ev" loading="lazy"></div>
+        <p class="g-tag">Düzce &nbsp;·&nbsp; 2024</p>
+        <h3 class="g-title">Dere Sesi Projesi</h3>
+        <p class="g-meta">110 m² &nbsp;·&nbsp; Çelik Karkas &nbsp;·&nbsp; 4 Ay</p>
+      </div>
+      <div class="g-item">
+        <div class="g-img"><img src="https://picsum.photos/seed/highland905/600/800" alt="Yayla evi" loading="lazy"></div>
+        <p class="g-tag">Kastamonu &nbsp;·&nbsp; 2024</p>
+        <h3 class="g-title">Yayla Yuvası</h3>
+        <p class="g-meta">130 m² &nbsp;·&nbsp; Çelik Karkas &nbsp;·&nbsp; 4.5 Ay</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACT ── -->
+  <section id="contact">
+    <div class="contact-grid">
+      <div class="contact-info">
+        <p class="sec-label reveal">İletişim</p>
+        <h2 class="sec-title reveal reveal-d1">Hayalini<br><em>bize anlat.</em></h2>
+        <p class="contact-desc reveal reveal-d2">Arazin var mı? Henüz yok mu? Fark etmez. Seni dinlemek, hayal ettiğin yaşamı anlamak için buradayız. İlk adım sadece bir mesaj.</p>
+        <div class="reveal reveal-d3">
+          <a href="https://wa.me/905001234567" class="wa-btn" target="_blank" rel="noopener noreferrer">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+            </svg>
+            WhatsApp ile Yaz
+          </a>
+        </div>
+      </div>
+
+      <form class="c-form reveal" id="contactForm" novalidate>
+        <div class="f-group">
+          <label for="f-name">Adınız Soyadınız</label>
+          <input type="text" id="f-name" name="name" placeholder="Ahmet Yılmaz" autocomplete="name">
+        </div>
+        <div class="f-group">
+          <label for="f-phone">Telefon Numaranız</label>
+          <input type="tel" id="f-phone" name="phone" placeholder="+90 5xx xxx xx xx" autocomplete="tel">
+        </div>
+        <div class="f-group">
+          <label for="f-land">Arazi Durumu</label>
+          <select id="f-land" name="land">
+            <option value="" disabled selected>Bir seçenek seçin</option>
+            <option value="owner">Arazi sahibiyim</option>
+            <option value="looking">Arazi arıyorum</option>
+            <option value="both">Hem arazi hem ev için yardım istiyorum</option>
+            <option value="info">Sadece bilgi almak istiyorum</option>
+          </select>
+        </div>
+        <div class="f-group">
+          <label for="f-msg">Hayalinizi Kısaca Anlatın</label>
+          <textarea id="f-msg" name="message" placeholder="Nerede yaşamak istiyorsunuz? Kaç kişilik? Öncelikleriniz neler?"></textarea>
+        </div>
+        <button type="submit" class="f-submit" id="submitBtn">Gönder</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span class="f-logo">Doğa Evleri</span>
+    <span class="f-copy">© 2024 &nbsp;·&nbsp; Toprağa köklenen her yapı için</span>
+  </footer>
+
+  <script>
+  // ════════════════════════════════════════════
+  //  CURSOR
+  // ════════════════════════════════════════════
+  const cursorDot  = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursor-ring');
+  let mx = 0, my = 0, rx = 0, ry = 0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    cursorDot.style.left = mx + 'px';
+    cursorDot.style.top  = my + 'px';
+  });
+
+  (function tickRing() {
+    rx += (mx - rx) * 0.1;
+    ry += (my - ry) * 0.1;
+    cursorRing.style.left = rx + 'px';
+    cursorRing.style.top  = ry + 'px';
+    requestAnimationFrame(tickRing);
+  })();
+
+  document.querySelectorAll('a, button, .diff-card').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursorDot.style.transform = 'translate(-50%,-50%) scale(2.5)';
+      cursorRing.style.width  = '58px';
+      cursorRing.style.height = '58px';
+      cursorRing.style.borderColor = 'rgba(200,169,110,0.55)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursorDot.style.transform = 'translate(-50%,-50%) scale(1)';
+      cursorRing.style.width  = '36px';
+      cursorRing.style.height = '36px';
+      cursorRing.style.borderColor = 'rgba(200,169,110,0.35)';
+    });
+  });
+
+  // ════════════════════════════════════════════
+  //  NAV SCROLL STATE
+  // ════════════════════════════════════════════
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 80);
+  }, { passive: true });
+
+  // ════════════════════════════════════════════
+  //  THREE.JS — HERO
+  // ════════════════════════════════════════════
+  (function heroScene() {
+    const canvas   = document.getElementById('hero-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setClearColor(0x0F1A0F, 1);
+
+    const W = () => canvas.offsetWidth;
+    const H = () => canvas.offsetHeight;
+    renderer.setSize(W(), H());
+
+    const scene  = new THREE.Scene();
+    scene.fog    = new THREE.FogExp2(0x0F1A0F, 0.03);
+
+    const camera = new THREE.PerspectiveCamera(58, W()/H(), 0.1, 120);
+    camera.position.set(0, 2.5, 13);
+    camera.lookAt(0, 1.8, 0);
+
+    // ── Materials ──
+    const wireMat = new THREE.LineBasicMaterial({ color: 0x8B9D5E, transparent: true, opacity: 0.75 });
+    const goldMat = new THREE.LineBasicMaterial({ color: 0xC8A96E, transparent: true, opacity: 0.35 });
+
+    // ── Helpers ──
+    function lineSegs(positions, mat) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      return new THREE.LineSegments(g, mat.clone());
+    }
+
+    function boxEdges(w, h, d, mat) {
+      return new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w, h, d)), mat.clone());
+    }
+
+    // ── House group ──
+    const house = new THREE.Group();
+
+    // Body
+    const body = boxEdges(5, 3.8, 4.2, wireMat);
+    body.position.y = 1.9;
+    house.add(body);
+
+    // Roof ridge prism
+    const rp = [-2.7,0,-2.2,  2.7,0,-2.2,  0,2,0,  // front face
+                -2.7,0,-2.2,  0,2,0,               // left slope
+                 2.7,0,-2.2,  2.7,0, 2.2,           // right base
+                 2.7,0, 2.2,  0,2,0,               // right back slope
+                 0,2,0,       -2.7,0, 2.2,           // ridge back-left
+                -2.7,0, 2.2, -2.7,0,-2.2,           // left base
+                -2.7,0, 2.2,  2.7,0, 2.2,           // back base
+                -2.7,0,-2.2,  2.7,0,-2.2,           // front base (dup for symmetry)
+                 0,2,0,       0,2,0];               // ridge (degenerate, ignored)
+    // Build roof as explicit edge pairs
+    const roofEdges = [
+      [-2.7,0,-2.2], [2.7,0,-2.2],   // front base
+      [2.7,0,-2.2],  [2.7,0, 2.2],   // right base
+      [2.7,0, 2.2],  [-2.7,0, 2.2],  // back base
+      [-2.7,0, 2.2], [-2.7,0,-2.2],  // left base
+      [-2.7,0,-2.2], [0,2,0],        // front-left slope
+      [2.7,0,-2.2],  [0,2,0],        // front-right slope
+      [-2.7,0, 2.2], [0,2,0],        // back-left slope
+      [2.7,0, 2.2],  [0,2,0],        // back-right slope
+      [-2.7,0,-2.2], [-2.7,0, 2.2],  // left eave
+      [2.7,0,-2.2],  [2.7,0, 2.2],   // right eave
+    ];
+    const roofPos = [];
+    roofEdges.forEach(([x,y,z]) => roofPos.push(x,y,z));
+    const roof = lineSegs(roofPos, goldMat);
+    roof.position.y = 3.8;
+    house.add(roof);
+
+    // Windows — front face
+    function winRect(cx, cy, cz, w, h, ry = 0) {
+      const hw = w/2, hh = h/2;
+      const pts = [
+        [-hw,-hh,0],  [hw,-hh,0],
+        [hw,-hh,0],   [hw, hh,0],
+        [hw, hh,0],   [-hw, hh,0],
+        [-hw, hh,0],  [-hw,-hh,0],
+        // cross
+        [-hw, 0, 0],  [hw, 0, 0],
+        [0,-hh, 0],   [0, hh, 0],
+      ];
+      const pos = [];
+      pts.forEach(([x,y,z]) => pos.push(x,y,z));
+      const seg = lineSegs(pos, goldMat);
+      seg.position.set(cx, cy, cz);
+      seg.rotation.y = ry;
+      house.add(seg);
+    }
+    winRect(-1.3, 2.3, 2.11, 1.3, 1.2);
+    winRect( 1.3, 2.3, 2.11, 1.3, 1.2);
+    winRect( 0,   1.1, 2.11, 0.9, 1.8); // door
+    winRect( 2.61, 2.3, 0.4, 1.1, 1.1, Math.PI/2);
+
+    scene.add(house);
+
+    // Grid
+    const grid = new THREE.GridHelper(40, 22, 0x1C3A1E, 0x1C3A1E);
+    grid.material.transparent = true;
+    grid.material.opacity = 0.3;
+    scene.add(grid);
+
+    // Trees
+    function addTree(x, z, h) {
+      const trunk = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.CylinderGeometry(0.05, 0.1, h*0.4, 5)),
+        new THREE.LineBasicMaterial({ color: 0x2D4A2E, transparent: true, opacity: 0.4 })
+      );
+      trunk.position.set(x, h*0.2, z);
+      scene.add(trunk);
+      const foliage = new THREE.LineSegments(
+        new THREE.EdgesGeometry(new THREE.ConeGeometry(0.65, h*0.65, 6)),
+        new THREE.LineBasicMaterial({ color: 0x1C3A1E, transparent: true, opacity: 0.3 })
+      );
+      foliage.position.set(x, h*0.65, z);
+      scene.add(foliage);
+    }
+    [[-8,-2,4.5],[-10,2,5.5],[-7,5,3.5],[8,-2,4],[10,2,5],[7,-5,3.5],[-5,-7,5],[5,6,4]].forEach(([x,z,h]) => addTree(x,z,h));
+
+    // Particles
+    const pCount = 250;
+    const pPos   = new Float32Array(pCount * 3);
+    for (let i = 0; i < pCount; i++) {
+      pPos[i*3]   = (Math.random()-0.5) * 50;
+      pPos[i*3+1] = Math.random() * 18;
+      pPos[i*3+2] = (Math.random()-0.5) * 50;
+    }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute('position', new THREE.Float32BufferAttribute(pPos, 3));
+    const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xC8A96E, size: 0.05, transparent: true, opacity: 0.35 }));
+    scene.add(particles);
+
+    // Mouse parallax
+    let tRotX = 0, tRotY = 0, cRotX = 0, cRotY = 0;
+    document.addEventListener('mousemove', e => {
+      tRotY = (e.clientX / innerWidth  - 0.5) * 0.35;
+      tRotX = (e.clientY / innerHeight - 0.5) * 0.18;
+    });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = W()/H();
+      camera.updateProjectionMatrix();
+      renderer.setSize(W(), H());
+    });
+
+    let t = 0;
+    (function tick() {
+      requestAnimationFrame(tick);
+      t += 0.004;
+      cRotX += (tRotX - cRotX) * 0.05;
+      cRotY += (tRotY - cRotY) * 0.05;
+      house.rotation.y = cRotY + t * 0.08;
+      house.rotation.x = cRotX * 0.25;
+      const b = 1 + Math.sin(t * 0.7) * 0.008;
+      house.scale.setScalar(b);
+      particles.rotation.y += 0.0004;
+      renderer.render(scene, camera);
+    })();
+  })();
+
+  // ════════════════════════════════════════════
+  //  HERO ENTRANCE ANIMATION
+  // ════════════════════════════════════════════
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.timeline({ delay: 0.4 })
+    .to('.hero-tag',  { opacity: 1, y: 0, duration: 1,   ease: 'power3.out' })
+    .to('.hero-h1',   { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, '-=0.65')
+    .to('.hero-sub',  { opacity: 1, y: 0, duration: 1,   ease: 'power3.out' }, '-=0.75')
+    .to('.hero-cta',  { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6')
+    .to('#scrollCue', { opacity: 1,        duration: 0.8, ease: 'power2.out' }, '-=0.3');
+
+  // ════════════════════════════════════════════
+  //  THREE.JS — SCROLL STORY
+  // ════════════════════════════════════════════
+  (function storyScene() {
+    const canvas   = document.getElementById('story-canvas');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setClearColor(0x0F1A0F, 1);
+
+    const W = () => canvas.offsetWidth;
+    const H = () => canvas.offsetHeight;
+    renderer.setSize(W(), H());
+
+    const scene  = new THREE.Scene();
+    scene.fog    = new THREE.FogExp2(0x0A150A, 0.022);
+
+    const camera = new THREE.PerspectiveCamera(48, W()/H(), 0.1, 200);
+    camera.position.set(12, 6, 16);
+    camera.lookAt(0, 2, 0);
+
+    // Ground
+    const gnd = new THREE.Mesh(
+      new THREE.PlaneGeometry(80, 80, 25, 25),
+      new THREE.MeshBasicMaterial({ color: 0x1A3A1A, wireframe: true, transparent: true, opacity: 0.12 })
+    );
+    gnd.rotation.x = -Math.PI/2;
+    scene.add(gnd);
+
+    // ── House layers (opacity driven by scroll) ──
+    const wireM = new THREE.MeshBasicMaterial({ color: 0x8B9D5E, wireframe: true, transparent: true, opacity: 0 });
+    const wallM = new THREE.MeshLambertMaterial({ color: 0x3D2B1F, transparent: true, opacity: 0 });
+    const roofM = new THREE.MeshLambertMaterial({ color: 0x2A1A10, transparent: true, opacity: 0 });
+    const glassM = new THREE.MeshBasicMaterial({ color: 0x4A8B9D, transparent: true, opacity: 0, side: THREE.DoubleSide });
+    const glowM  = new THREE.MeshBasicMaterial({ color: 0xF0C060, transparent: true, opacity: 0 });
+
+    const bodyGeo = new THREE.BoxGeometry(7, 4.5, 5.5);
+    const roofGeo = new THREE.ConeGeometry(5.2, 2.5, 4);
+    roofGeo.rotateY(Math.PI/4);
+
+    const bodyWire = new THREE.Mesh(bodyGeo, wireM);
+    bodyWire.position.y = 2.25;
+    scene.add(bodyWire);
+
+    const bodyWall = new THREE.Mesh(bodyGeo.clone(), wallM);
+    bodyWall.position.y = 2.25;
+    scene.add(bodyWall);
+
+    const roofWire = new THREE.Mesh(roofGeo, new THREE.MeshBasicMaterial({ color: 0xA0825A, wireframe: true, transparent: true, opacity: 0 }));
+    roofWire.position.y = 5.75;
+    scene.add(roofWire);
+
+    const roofSolid = new THREE.Mesh(roofGeo.clone(), roofM);
+    roofSolid.position.y = 5.75;
+    scene.add(roofSolid);
+
+    // Windows
+    const wins = [[-2,2.8,2.76,2,1.5],[ 2,2.8,2.76,2,1.5],[3.51,2.8,0.5,1.5,1.5,Math.PI/2]].map(([x,y,z,w,h,ry=0]) => {
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), glassM.clone());
+      m.position.set(x,y,z);
+      m.rotation.y = ry;
+      scene.add(m);
+      return m;
+    });
+
+    // Interior glow
+    const glowSphere = new THREE.Mesh(new THREE.SphereGeometry(1.8, 10, 10), glowM);
+    glowSphere.position.y = 2.2;
+    scene.add(glowSphere);
+
+    // Ambient light
+    scene.add(new THREE.AmbientLight(0x2D4A1E, 1.5));
+    const sun = new THREE.DirectionalLight(0xF0E8D0, 0.6);
+    sun.position.set(6, 12, 8);
+    scene.add(sun);
+
+    // Story trees
+    function storyTree(x, z) {
+      const t = new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.14,2.2,5), new THREE.MeshBasicMaterial({ color: 0x243A20 }));
+      t.position.set(x, 1.1, z);
+      scene.add(t);
+      const c = new THREE.Mesh(new THREE.ConeGeometry(1.4, 5, 7), new THREE.MeshBasicMaterial({ color: 0x182A15, transparent: true, opacity: 0.9 }));
+      c.position.set(x, 5.5, z);
+      scene.add(c);
+    }
+    [[-14,-7],[-16,2],[-13,8],[14,-6],[16,3],[13,9],[-8,-12],[8,-11]].forEach(([x,z]) => storyTree(x,z));
+
+    window.addEventListener('resize', () => {
+      camera.aspect = W()/H();
+      camera.updateProjectionMatrix();
+      renderer.setSize(W(), H());
+    });
+
+    let progress = 0;
+    let sTime = 0;
+
+    // ScrollTrigger — drives progress 0→1 across story-pin height
+    ScrollTrigger.create({
+      trigger: '.story-pin',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: true,
+      onUpdate(self) {
+        progress = self.progress;
+        const p = progress;
+
+        // wireframe rises  0.0–0.25
+        wireM.opacity        = p < 0.25 ? p * 4 * 0.85 : p < 0.5 ? 0.85 - (p-0.25)*4*0.7 : 0.1;
+        roofWire.material.opacity = wireM.opacity * 0.75;
+
+        // walls solidify   0.2–0.5
+        wallM.opacity = p < 0.2 ? 0 : p < 0.5 ? (p-0.2)/0.3 * 0.9 : 0.9;
+        roofM.opacity = p < 0.25 ? 0 : p < 0.55 ? (p-0.25)/0.3 * 0.95 : 0.95;
+
+        // glass 0.4–0.65
+        const gAlpha = p < 0.4 ? 0 : p < 0.65 ? (p-0.4)/0.25 * 0.45 : 0.45;
+        wins.forEach(w => w.material.opacity = gAlpha);
+
+        // glow 0.75–1.0
+        glowM.opacity = p < 0.75 ? 0 : (p-0.75)/0.25 * 0.35;
+      }
+    });
+
+    // Step text animation via ScrollTrigger
+    const stepDefs = [
+      { id: 'step1', in: 0.00, out: 0.22, dir: 1 },
+      { id: 'step2', in: 0.18, out: 0.40, dir:-1 },
+      { id: 'step3', in: 0.37, out: 0.58, dir: 1 },
+      { id: 'step4', in: 0.55, out: 0.77, dir:-1 },
+      { id: 'step5', in: 0.74, out: 1.00, dir: 1 },
+    ];
+
+    ScrollTrigger.create({
+      trigger: '.story-pin',
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: true,
+      onUpdate(self) {
+        const p = self.progress;
+        stepDefs.forEach(({ id, in: si, out: so, dir }) => {
+          const el = document.getElementById(id);
+          const mid = (si + so) / 2;
+          let alpha, tx;
+          if (p <= si) {
+            alpha = 0; tx = 70 * dir;
+          } else if (p <= mid) {
+            const t = (p - si) / (mid - si);
+            alpha = t; tx = 70 * dir * (1 - t);
+          } else if (p <= so) {
+            const t = (p - mid) / (so - mid);
+            alpha = 1 - t; tx = -70 * dir * t;
+          } else {
+            alpha = 0; tx = -70 * dir;
+          }
+          el.style.opacity = alpha;
+          el.style.transform = `translateY(-50%) translateX(${tx}px)`;
+        });
+      }
+    });
+
+    // Render loop
+    (function tick() {
+      requestAnimationFrame(tick);
+      sTime += 0.003;
+      const angle  = progress * Math.PI * 0.6 + sTime * 0.04;
+      const radius = 18 - progress * 4;
+      camera.position.x = Math.sin(angle) * radius;
+      camera.position.z = Math.cos(angle) * radius;
+      camera.position.y = 6 + progress * 2;
+      camera.lookAt(0, 2, 0);
+      if (progress > 0.75) {
+        glowSphere.material.opacity = Math.max(0, progress - 0.75) / 0.25 * 0.3 + Math.sin(sTime * 1.8) * 0.05;
+      }
+      renderer.render(scene, camera);
+    })();
+  })();
+
+  // ════════════════════════════════════════════
+  //  INTERSECTION OBSERVER — reveal
+  // ════════════════════════════════════════════
+  const ro = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+  // ════════════════════════════════════════════
+  //  GALLERY — drag scroll
+  // ════════════════════════════════════════════
+  const gallery = document.getElementById('gallery');
+  let isDragging = false, startX, startScrollLeft;
+  gallery.addEventListener('mousedown', e => {
+    isDragging = true;
+    startX = e.pageX - gallery.offsetLeft;
+    startScrollLeft = gallery.scrollLeft;
+  });
+  window.addEventListener('mouseup', () => { isDragging = false; });
+  gallery.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    e.preventDefault();
+    gallery.scrollLeft = startScrollLeft - (e.pageX - gallery.offsetLeft - startX) * 1.5;
+  });
+
+  // ════════════════════════════════════════════
+  //  FORM SUBMIT
+  // ════════════════════════════════════════════
+  document.getElementById('contactForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Gönderildi';
+    btn.classList.add('sent');
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = 'Gönder';
+      btn.classList.remove('sent');
+      btn.disabled = false;
+      e.target.reset();
+    }, 4000);
+  });
+  </script>
+</body>
+</html>

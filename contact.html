@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>İletişim — Doğa Evleri</title>
+  <meta name="description" content="Doğa Evleri ile iletişime geçin. Deniz Bozbeyoğlu — +90 551 263 5033. Araziniz için ücretsiz ön görüşme.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root {
+      --color-earth:  #6B4F3A;
+      --color-forest: #1C3A1E;
+      --color-stone:  #8C8C7A;
+      --color-cream:  #F5F0E8;
+      --color-gold:   #C8A96E;
+      --color-dark:   #0F1A0F;
+      --color-text:   #2C2C2C;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--color-dark);
+      color: var(--color-text);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ── */
+    #cursor {
+      width: 8px; height: 8px; background: var(--color-gold);
+      border-radius: 50%; position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.15s var(--ease-out);
+    }
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(200,169,110,0.35);
+      border-radius: 50%; position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), border-color 0.3s;
+    }
+
+    /* ── NAV ── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 2rem 4rem;
+      transition: padding 0.5s var(--ease-out), background 0.5s, backdrop-filter 0.5s, border-bottom 0.5s;
+    }
+    #nav.scrolled {
+      padding: 1.2rem 4rem;
+      background: rgba(15,26,15,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(245,240,232,0.06);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem; font-weight: 300;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--color-cream); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 3rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.72rem; font-weight: 400;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(245,240,232,0.5); text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--color-cream); }
+
+    /* ── HEADER ── */
+    #page-header {
+      padding: 18rem 4rem 7rem;
+      background: var(--color-dark);
+      position: relative; overflow: hidden;
+    }
+    #page-header::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url('https://picsum.photos/seed/misty_forest/1400/900') center/cover no-repeat;
+      opacity: 0.05;
+    }
+    #page-header::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(28,58,30,0.4) 0%, transparent 65%);
+    }
+    .ph-inner { position: relative; z-index: 1; }
+    .ph-label {
+      font-size: 0.68rem; font-weight: 400;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: rgba(200,169,110,0.65); margin-bottom: 1.5rem;
+      opacity: 0; transform: translateY(15px);
+    }
+    .ph-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 8vw, 8rem);
+      font-weight: 300; line-height: 1.04;
+      letter-spacing: -0.03em; color: var(--color-cream);
+      margin-bottom: 2.5rem; max-width: 900px;
+      opacity: 0; transform: translateY(30px);
+    }
+    .ph-title em { font-style: italic; color: var(--color-gold); }
+    .ph-sub {
+      font-size: 0.92rem; font-weight: 300;
+      line-height: 1.9; color: rgba(245,240,232,0.4);
+      max-width: 480px;
+      opacity: 0; transform: translateY(15px);
+    }
+
+    /* ── MAIN CONTACT SECTION ── */
+    #contact-main {
+      background: var(--color-cream);
+      padding: 10rem 4rem;
+    }
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 5fr 7fr;
+      gap: 8rem; align-items: start;
+    }
+
+    /* LEFT — info */
+    .contact-info {}
+    .sec-label {
+      font-size: 0.68rem; font-weight: 400;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--color-stone); margin-bottom: 1.5rem;
+    }
+    .sec-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 4vw, 3.8rem);
+      font-weight: 300; line-height: 1.12;
+      letter-spacing: -0.02em; color: var(--color-earth);
+      margin-bottom: 2rem;
+    }
+    .sec-title em { font-style: italic; color: var(--color-forest); }
+    .contact-intro {
+      font-size: 0.88rem; font-weight: 300;
+      line-height: 1.95; color: #5A5040;
+      margin-bottom: 3.5rem; max-width: 380px;
+    }
+
+    /* Contact cards */
+    .contact-cards { display: flex; flex-direction: column; gap: 1px; }
+    .c-card {
+      background: var(--color-cream);
+      border: 1px solid rgba(107,79,58,0.12);
+      padding: 1.8rem 2rem;
+      display: flex; align-items: flex-start; gap: 1.5rem;
+      text-decoration: none;
+      transition: background 0.35s, border-color 0.35s;
+      position: relative; overflow: hidden;
+    }
+    .c-card::after {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0;
+      width: 2px; background: var(--color-gold);
+      transform: scaleY(0); transform-origin: bottom;
+      transition: transform 0.4s var(--ease-out);
+    }
+    .c-card:hover::after { transform: scaleY(1); }
+    .c-card:hover { background: rgba(107,79,58,0.03); border-color: rgba(107,79,58,0.2); }
+    .c-icon {
+      width: 42px; height: 42px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid rgba(107,79,58,0.15);
+    }
+    .c-icon svg { width: 18px; height: 18px; }
+    .c-content {}
+    .c-label {
+      font-size: 0.62rem; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--color-stone);
+      margin-bottom: 0.3rem;
+    }
+    .c-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; font-weight: 400; color: var(--color-earth);
+      line-height: 1.3;
+    }
+    .c-sub {
+      font-size: 0.72rem; font-weight: 300;
+      color: var(--color-stone); margin-top: 0.2rem;
+    }
+
+    /* WhatsApp special card */
+    .c-card.wa {
+      background: rgba(37,211,102,0.04);
+      border-color: rgba(37,211,102,0.15);
+    }
+    .c-card.wa::after { background: #25D366; }
+    .c-card.wa .c-icon { border-color: rgba(37,211,102,0.2); }
+    .c-card.wa .c-icon svg { color: #25D366; }
+    .c-card.wa .c-value { color: #1A7A3A; }
+    .c-card.wa:hover { background: rgba(37,211,102,0.07); border-color: rgba(37,211,102,0.25); }
+
+    /* Social links placeholder */
+    .social-section { margin-top: 3rem; }
+    .social-label {
+      font-size: 0.62rem; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--color-stone);
+      margin-bottom: 1.2rem;
+    }
+    .social-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .social-btn {
+      padding: 0.6rem 1.4rem;
+      border: 1px solid rgba(107,79,58,0.2);
+      background: transparent;
+      font-size: 0.68rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--color-stone);
+      text-decoration: none;
+      transition: border-color 0.3s, color 0.3s;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .social-btn:hover { border-color: var(--color-gold); color: var(--color-earth); }
+    .social-btn.coming-soon {
+      opacity: 0.4; pointer-events: none;
+      border-style: dashed;
+    }
+
+    /* RIGHT — form */
+    .contact-form-wrap {}
+    .form-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 300;
+      color: var(--color-earth); margin-bottom: 0.7rem;
+      line-height: 1.2;
+    }
+    .form-sub {
+      font-size: 0.8rem; font-weight: 300;
+      color: var(--color-stone); margin-bottom: 3rem;
+      line-height: 1.7;
+    }
+    .c-form { display: flex; flex-direction: column; gap: 0; }
+    .f-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .f-group {
+      display: flex; flex-direction: column; gap: 0.55rem;
+      padding-bottom: 1.8rem;
+    }
+    .f-group label {
+      font-size: 0.62rem; font-weight: 400;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(44,44,44,0.4);
+    }
+    .f-group input,
+    .f-group select,
+    .f-group textarea {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(44,44,44,0.15);
+      padding: 0.7rem 0;
+      color: var(--color-text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem; font-weight: 300;
+      outline: none;
+      transition: border-color 0.3s;
+      width: 100%;
+    }
+    .f-group input::placeholder,
+    .f-group textarea::placeholder { color: rgba(44,44,44,0.25); }
+    .f-group input:focus,
+    .f-group select:focus,
+    .f-group textarea:focus { border-bottom-color: var(--color-earth); }
+    .f-group select {
+      appearance: none; -webkit-appearance: none;
+      cursor: pointer; background-color: transparent;
+    }
+    .f-group select option { background: #fff; color: var(--color-text); }
+    .f-group textarea { resize: none; min-height: 110px; }
+    .f-full { grid-column: 1 / -1; }
+    .f-submit-row {
+      display: flex; align-items: center;
+      gap: 2rem; padding-top: 1rem;
+    }
+    .f-submit {
+      padding: 1.1rem 3rem;
+      background: var(--color-earth);
+      border: 1px solid var(--color-earth);
+      color: var(--color-cream);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem; font-weight: 400;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      cursor: none;
+      transition: background 0.35s, border-color 0.35s;
+    }
+    .f-submit:hover {
+      background: var(--color-forest);
+      border-color: var(--color-forest);
+    }
+    .f-submit.sent {
+      background: transparent;
+      border-color: rgba(140,180,100,0.5);
+      color: rgba(60,120,60,0.9);
+    }
+    .f-privacy {
+      font-size: 0.7rem; font-weight: 300;
+      color: rgba(44,44,44,0.35); line-height: 1.6;
+      max-width: 280px;
+    }
+
+    /* ── PERSON BLOCK ── */
+    #person {
+      background: var(--color-forest);
+      padding: 8rem 4rem;
+    }
+    .person-grid {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 5rem; align-items: center;
+      max-width: 900px;
+    }
+    .person-photo {
+      width: 220px; height: 280px;
+      overflow: hidden; flex-shrink: 0;
+    }
+    .person-photo img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: saturate(0.5) brightness(0.85);
+      transition: filter 0.8s;
+    }
+    .person-grid:hover .person-photo img { filter: saturate(0.75) brightness(1); }
+    .person-info {}
+    .person-role {
+      font-size: 0.65rem; letter-spacing: 0.28em;
+      text-transform: uppercase; color: var(--color-gold);
+      margin-bottom: 0.5rem;
+    }
+    .person-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 300; letter-spacing: -0.02em;
+      color: var(--color-cream); line-height: 1.1;
+      margin-bottom: 1.5rem;
+    }
+    .person-rule {
+      width: 40px; height: 1px;
+      background: var(--color-gold); margin-bottom: 1.5rem;
+    }
+    .person-bio {
+      font-size: 0.88rem; font-weight: 300;
+      line-height: 1.95; color: rgba(245,240,232,0.45);
+      max-width: 460px; margin-bottom: 2.5rem;
+    }
+    .person-direct {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+    }
+    .person-btn {
+      display: inline-flex; align-items: center; gap: 0.7rem;
+      padding: 0.9rem 1.8rem;
+      text-decoration: none;
+      font-size: 0.72rem; letter-spacing: 0.16em;
+      text-transform: uppercase;
+      transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .person-btn.phone {
+      border: 1px solid rgba(245,240,232,0.2);
+      color: var(--color-cream);
+      background: transparent;
+    }
+    .person-btn.phone:hover {
+      border-color: var(--color-gold);
+      color: var(--color-gold);
+    }
+    .person-btn.whatsapp {
+      border: 1px solid rgba(37,211,102,0.25);
+      color: #4DDB7A;
+      background: rgba(37,211,102,0.06);
+    }
+    .person-btn.whatsapp:hover {
+      background: rgba(37,211,102,0.12);
+      border-color: rgba(37,211,102,0.45);
+    }
+
+    /* ── FAQ ── */
+    #faq {
+      background: var(--color-cream);
+      padding: 9rem 4rem;
+    }
+    .faq-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 8rem; align-items: start;
+    }
+    .faq-left {}
+    .faq-list { display: flex; flex-direction: column; gap: 0; }
+    .faq-item {
+      border-bottom: 1px solid rgba(107,79,58,0.12);
+      overflow: hidden;
+    }
+    .faq-q {
+      width: 100%;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.6rem 0;
+      background: none; border: none;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem; font-weight: 400;
+      color: var(--color-earth);
+      text-align: left; cursor: none;
+      gap: 2rem;
+    }
+    .faq-q span.toggle {
+      font-size: 1.4rem; line-height: 1;
+      color: var(--color-gold); flex-shrink: 0;
+      transition: transform 0.3s;
+    }
+    .faq-item.open .faq-q span.toggle { transform: rotate(45deg); }
+    .faq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.45s var(--ease-out), padding 0.45s;
+    }
+    .faq-item.open .faq-a { max-height: 400px; }
+    .faq-a-inner {
+      font-size: 0.85rem; font-weight: 300;
+      line-height: 1.9; color: #5A5040;
+      padding-bottom: 1.6rem;
+      max-width: 560px;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--color-dark); padding: 3.5rem 4rem;
+      border-top: 1px solid rgba(245,240,232,0.05);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .f-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 300;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(245,240,232,0.3);
+    }
+    .f-copy { font-size: 0.68rem; color: rgba(245,240,232,0.18); letter-spacing: 0.08em; }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 0.12s; }
+    .reveal-d2 { transition-delay: 0.24s; }
+    .reveal-d3 { transition-delay: 0.36s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1000px) {
+      .contact-layout { grid-template-columns: 1fr; gap: 5rem; }
+      .faq-grid { grid-template-columns: 1fr; gap: 4rem; }
+    }
+    @media (max-width: 900px) {
+      #nav { padding: 1.5rem 2rem; }
+      #nav.scrolled { padding: 1rem 2rem; }
+      .nav-links { display: none; }
+      #page-header { padding: 14rem 2rem 6rem; }
+      #contact-main { padding: 7rem 2rem; }
+      #person { padding: 6rem 2rem; }
+      .person-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .person-photo { width: 160px; height: 200px; }
+      #faq { padding: 7rem 2rem; }
+      .f-row { grid-template-columns: 1fr; }
+      footer { padding: 2.5rem 2rem; flex-direction: column; gap: 1rem; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      body { cursor: auto; }
+      #cursor, #cursor-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <nav id="nav">
+    <a href="index.html" class="nav-logo">Doğa Evleri</a>
+    <ul class="nav-links">
+      <li><a href="about.html">Felsefemiz</a></li>
+      <li><a href="projects.html">Projeler</a></li>
+      <li><a href="process.html">Süreç</a></li>
+      <li><a href="contact.html" class="active">İletişim</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── HEADER ── -->
+  <header id="page-header">
+    <div class="ph-inner">
+      <p class="ph-label">İletişim</p>
+      <h1 class="ph-title">Hayalini<br><em>bize anlat.</em></h1>
+      <p class="ph-sub">Arazin var mı, henüz yok mu — fark etmez. İlk adım sadece bir konuşma. Seni dinliyoruz.</p>
+    </div>
+  </header>
+
+  <!-- ── MAIN CONTACT ── -->
+  <section id="contact-main">
+    <div class="contact-layout">
+
+      <!-- LEFT -->
+      <div class="contact-info">
+        <p class="sec-label reveal">Bize Ulaşın</p>
+        <h2 class="sec-title reveal reveal-d1">
+          Doğrudan<br>
+          <em>konuşalım.</em>
+        </h2>
+        <p class="contact-intro reveal reveal-d2">
+          Formdan bize yazabilir, WhatsApp ile direkt mesaj atabilir,
+          ya da arayabilirsiniz. Her kanal aktif, her soru değerli.
+        </p>
+
+        <div class="contact-cards">
+          <!-- WhatsApp -->
+          <a href="https://wa.me/905512635033" class="c-card wa reveal" target="_blank" rel="noopener noreferrer">
+            <div class="c-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+            </div>
+            <div class="c-content">
+              <p class="c-label">WhatsApp</p>
+              <p class="c-value">+90 551 263 5033</p>
+              <p class="c-sub">Mesajınıza en geç 4 saat içinde dönüyoruz</p>
+            </div>
+          </a>
+
+          <!-- Phone -->
+          <a href="tel:+905512635033" class="c-card reveal reveal-d1">
+            <div class="c-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-earth)">
+                <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+              </svg>
+            </div>
+            <div class="c-content">
+              <p class="c-label">Telefon</p>
+              <p class="c-value">+90 551 263 5033</p>
+              <p class="c-sub">Hafta içi 09:00 – 18:00</p>
+            </div>
+          </a>
+
+          <!-- Name card -->
+          <div class="c-card reveal reveal-d2" style="pointer-events:none; cursor:default;">
+            <div class="c-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--color-earth)">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="c-content">
+              <p class="c-label">Muhatap</p>
+              <p class="c-value">Deniz Bozbeyoğlu</p>
+              <p class="c-sub">Kurucu &nbsp;·&nbsp; Doğa Evleri</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Social links -->
+        <div class="social-section reveal">
+          <p class="social-label">Sosyal Medya</p>
+          <div class="social-links">
+            <a href="#" class="social-btn coming-soon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+              Instagram
+            </a>
+            <span class="social-btn coming-soon" style="cursor:default;">
+              Yakında ekleniyor
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT — form -->
+      <div class="contact-form-wrap reveal">
+        <h3 class="form-title">Hayalini bizimle paylaş.</h3>
+        <p class="form-sub">Arazin, hayalin veya sadece bir sorunla başlayabilirsin. Her bilgi değerlidir.</p>
+
+        <form class="c-form" id="contactForm" novalidate>
+          <div class="f-row">
+            <div class="f-group">
+              <label for="f-name">Adınız Soyadınız</label>
+              <input type="text" id="f-name" name="name" placeholder="Ahmet Yılmaz" autocomplete="name">
+            </div>
+            <div class="f-group">
+              <label for="f-phone">Telefon</label>
+              <input type="tel" id="f-phone" name="phone" placeholder="+90 5xx xxx xx xx" autocomplete="tel">
+            </div>
+          </div>
+
+          <div class="f-row">
+            <div class="f-group">
+              <label for="f-city">Şehir / İlçe</label>
+              <input type="text" id="f-city" name="city" placeholder="İstanbul">
+            </div>
+            <div class="f-group">
+              <label for="f-land">Arazi Durumu</label>
+              <select id="f-land" name="land">
+                <option value="" disabled selected>Seçin</option>
+                <option value="owner">Arazi sahibiyim</option>
+                <option value="looking">Arazi arıyorum</option>
+                <option value="both">İkisi için de yardım istiyorum</option>
+                <option value="info">Sadece bilgi alacağım</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="f-row">
+            <div class="f-group">
+              <label for="f-size">Tahmini Büyüklük</label>
+              <select id="f-size" name="size">
+                <option value="" disabled selected>Seçin</option>
+                <option value="80">80 m²'ye kadar</option>
+                <option value="120">80–120 m²</option>
+                <option value="150">120–150 m²</option>
+                <option value="200">150 m² üzeri</option>
+                <option value="unknown">Henüz bilmiyorum</option>
+              </select>
+            </div>
+            <div class="f-group">
+              <label for="f-budget">Bütçe Aralığı</label>
+              <select id="f-budget" name="budget">
+                <option value="" disabled selected>Seçin</option>
+                <option value="1">1–1.5 Milyon TL</option>
+                <option value="2">1.5–2.5 Milyon TL</option>
+                <option value="3">2.5 Milyon TL üzeri</option>
+                <option value="unknown">Henüz bilmiyorum</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="f-group f-full">
+            <label for="f-msg">Hayalinizi Anlatın</label>
+            <textarea id="f-msg" name="message" placeholder="Nerede? Nasıl bir yaşam hayal ediyorsunuz? Ne kadar süredir bu fikir var?"></textarea>
+          </div>
+
+          <div class="f-group f-full">
+            <label for="f-source">Bizi Nereden Duydunuz?</label>
+            <select id="f-source" name="source">
+              <option value="" disabled selected>Seçin</option>
+              <option value="instagram">Instagram</option>
+              <option value="google">Google Arama</option>
+              <option value="referral">Tanıdık Referansı</option>
+              <option value="other">Diğer</option>
+            </select>
+          </div>
+
+          <div class="f-submit-row">
+            <button type="submit" class="f-submit" id="submitBtn">Gönder</button>
+            <p class="f-privacy">Bilgileriniz yalnızca sizinle iletişim kurmak için kullanılır. Üçüncü taraflarla paylaşılmaz.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── KİŞİ BLOĞU ── -->
+  <section id="person">
+    <div class="person-grid reveal">
+      <div class="person-photo">
+        <img src="https://picsum.photos/seed/deniz_b/400/520" alt="Deniz Bozbeyoğlu — Doğa Evleri Kurucu">
+      </div>
+      <div class="person-info">
+        <p class="person-role">Kurucu &nbsp;·&nbsp; Doğa Evleri</p>
+        <h2 class="person-name">Deniz<br>Bozbeyoğlu</h2>
+        <div class="person-rule"></div>
+        <p class="person-bio">
+          Doğa Evleri'nin kurucusu. Yıllardır doğayla iç içe yaşamak isteyenlerin
+          hayallerini çelik ve camla gerçeğe dönüştürüyor.
+          Her projeye kişisel olarak dahil olur — ilk arazi ziyaretinden
+          teslim gününe kadar.
+        </p>
+        <div class="person-direct">
+          <a href="tel:+905512635033" class="person-btn phone">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            +90 551 263 5033
+          </a>
+          <a href="https://wa.me/905512635033" class="person-btn whatsapp" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── SSS ── -->
+  <section id="faq">
+    <div class="faq-grid">
+      <div class="faq-left">
+        <p class="sec-label reveal">Sık Sorulan Sorular</p>
+        <h2 class="sec-title reveal reveal-d1">
+          Aklınızdaki<br>
+          <em>sorular.</em>
+        </h2>
+        <p style="font-size:0.85rem;font-weight:300;line-height:1.9;color:#5A5040;margin-top:1.5rem;max-width:280px" class="reveal reveal-d2">
+          Cevabını bulamadığınız bir şey varsa,
+          direkt yazın — en iyi cevabı doğrudan sizinle konuşarak veririz.
+        </p>
+      </div>
+      <div class="faq-list reveal">
+        <div class="faq-item">
+          <button class="faq-q">
+            Arazim olmadan başlayabilir miyim?
+            <span class="toggle">+</span>
+          </button>
+          <div class="faq-a">
+            <p class="faq-a-inner">Evet. Birçok müşterimiz arazi aramak için de bizimle çalışıyor. Bölge analizi yapıyor, uygun arsaları değerlendiriyoruz. Arazi bulduktan sonra tasarım sürecine geçiyoruz.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">
+            İnşaat ne kadar sürer?
+            <span class="toggle">+</span>
+          </button>
+          <div class="faq-a">
+            <p class="faq-a-inner">Ortalama 3.5 ila 5 ay arasında. Bu süre, projenin büyüklüğüne, arazinin konumuna ve hava koşullarına göre değişir. Tasarım süreci ayrıca 6–10 hafta sürer.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">
+            Karkas çelik neden klasik yapıdan daha mı iyi?
+            <span class="toggle">+</span>
+          </button>
+          <div class="faq-a">
+            <p class="faq-a-inner">Daha hafif, daha hızlı, daha az saha çalışması gerektiriyor. Depreme karşı esnek davranır. Doğal arazilerde, özellikle eğimli ve ağaçlık alanlarda çok daha az çevre tahribatıyla inşa edilebilir.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">
+            Yasal izinleri biz mi alıyoruz?
+            <span class="toggle">+</span>
+          </button>
+          <div class="faq-a">
+            <p class="faq-a-inner">İzin sürecini sizin adınıza yönetiyor ve takip ediyoruz. Arazi kategorisine (tarla, orman, imarlı vb.) göre farklı süreçler işliyor — bunların hepsini birlikte planlıyoruz.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">
+            Garanti veriyor musunuz?
+            <span class="toggle">+</span>
+          </button>
+          <div class="faq-a">
+            <p class="faq-a-inner">Yapı iskeleti için 10 yıl yapısal garanti veriyoruz. Mekanik ve elektrik sistemleri için ayrıca 2 yıl. Herhangi bir sorun için doğrudan arayabilirsiniz — Deniz bizzat ilgilenir.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span class="f-logo">Doğa Evleri</span>
+    <span class="f-copy">© 2024 &nbsp;·&nbsp; Toprağa köklenen her yapı için</span>
+  </footer>
+
+  <script>
+  // CURSOR
+  const cursorDot=document.getElementById('cursor'),cursorRing=document.getElementById('cursor-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cursorDot.style.left=mx+'px';cursorDot.style.top=my+'px';});
+  (function t(){rx+=(mx-rx)*0.1;ry+=(my-ry)*0.1;cursorRing.style.left=rx+'px';cursorRing.style.top=ry+'px';requestAnimationFrame(t);})();
+  document.querySelectorAll('a,button,.c-card').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cursorDot.style.transform='translate(-50%,-50%) scale(2.5)';cursorRing.style.width='58px';cursorRing.style.height='58px';cursorRing.style.borderColor='rgba(200,169,110,0.55)';});
+    el.addEventListener('mouseleave',()=>{cursorDot.style.transform='translate(-50%,-50%) scale(1)';cursorRing.style.width='36px';cursorRing.style.height='36px';cursorRing.style.borderColor='rgba(200,169,110,0.35)';});
+  });
+
+  // NAV
+  const nav=document.getElementById('nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>80),{passive:true});
+
+  // ENTRANCE
+  gsap.registerPlugin(ScrollTrigger);
+  gsap.timeline({delay:0.3})
+    .to('.ph-label',{opacity:1,y:0,duration:0.9,ease:'power3.out'})
+    .to('.ph-title',{opacity:1,y:0,duration:1.2,ease:'power3.out'},'-=0.6')
+    .to('.ph-sub',  {opacity:1,y:0,duration:0.9,ease:'power3.out'},'-=0.7');
+
+  // INTERSECTION OBSERVER
+  const ro=new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{ if(e.isIntersecting) setTimeout(()=>e.target.classList.add('in'),i*80); });
+  },{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+  // FAQ ACCORDION
+  document.querySelectorAll('.faq-q').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const item = btn.closest('.faq-item');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+      if(!isOpen) item.classList.add('open');
+    });
+  });
+
+  // FORM
+  document.getElementById('contactForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const btn=document.getElementById('submitBtn');
+    btn.textContent='Gönderildi';
+    btn.classList.add('sent');
+    btn.disabled=true;
+    setTimeout(()=>{
+      btn.textContent='Gönder';
+      btn.classList.remove('sent');
+      btn.disabled=false;
+      e.target.reset();
+    },4000);
+  });
+  </script>
+</body>
+</html>

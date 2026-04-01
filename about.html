@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Felsefemiz — Doğa Evleri</title>
+  <meta name="description" content="Şehrin gürültüsünden değil, hayatın kendisinden vazgeçmeden. Doğa Evleri'nin kuruluş felsefesi ve değerleri.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root {
+      --color-earth:  #6B4F3A;
+      --color-forest: #1C3A1E;
+      --color-stone:  #8C8C7A;
+      --color-cream:  #F5F0E8;
+      --color-gold:   #C8A96E;
+      --color-dark:   #0F1A0F;
+      --color-text:   #2C2C2C;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--color-dark);
+      color: var(--color-text);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ── */
+    #cursor {
+      width: 8px; height: 8px;
+      background: var(--color-gold);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%,-50%);
+      transition: transform 0.15s var(--ease-out);
+    }
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(200,169,110,0.35);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%);
+      transition: width 0.3s var(--ease-out), height 0.3s var(--ease-out), border-color 0.3s;
+    }
+
+    /* ── NAV ── */
+    #nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 500;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 2rem 4rem;
+      transition: padding 0.5s var(--ease-out), background 0.5s, backdrop-filter 0.5s, border-bottom 0.5s;
+    }
+    #nav.scrolled {
+      padding: 1.2rem 4rem;
+      background: rgba(15,26,15,0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(245,240,232,0.06);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem; font-weight: 300;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--color-cream); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 3rem; list-style: none; }
+    .nav-links a {
+      font-size: 0.72rem; font-weight: 400;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(245,240,232,0.5); text-decoration: none;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--color-cream); }
+
+    /* ── MANIFESTO HERO ── */
+    #manifesto {
+      position: relative;
+      width: 100%; height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; background: var(--color-dark);
+    }
+    #manifesto-canvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+    }
+    .manifesto-inner {
+      position: relative; z-index: 10;
+      text-align: center; padding: 0 3rem;
+      pointer-events: none;
+      max-width: 1000px;
+    }
+    .manifesto-tag {
+      font-size: 0.68rem; font-weight: 400;
+      letter-spacing: 0.32em; text-transform: uppercase;
+      color: var(--color-gold); margin-bottom: 3rem;
+      opacity: 0; transform: translateY(15px);
+    }
+    .manifesto-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.4rem, 5.5vw, 5.8rem);
+      font-weight: 300; line-height: 1.12;
+      letter-spacing: -0.025em;
+      color: var(--color-cream);
+      opacity: 0; transform: translateY(30px);
+    }
+    .manifesto-quote em { font-style: italic; color: var(--color-gold); }
+    .manifesto-attr {
+      margin-top: 3rem;
+      font-size: 0.75rem; font-weight: 300;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(245,240,232,0.3);
+      opacity: 0; transform: translateY(15px);
+    }
+    .scroll-cue {
+      position: absolute; bottom: 2.8rem; left: 50%;
+      transform: translateX(-50%); z-index: 10;
+      display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+      opacity: 0;
+    }
+    .scroll-cue span {
+      font-size: 0.62rem; letter-spacing: 0.28em;
+      text-transform: uppercase; color: rgba(245,240,232,0.28);
+    }
+    .scroll-line {
+      width: 1px; height: 56px;
+      background: linear-gradient(to bottom, rgba(200,169,110,0.5), transparent);
+      animation: linePulse 2.2s ease-in-out infinite;
+    }
+    @keyframes linePulse { 0%,100%{opacity:0.25} 50%{opacity:0.9} }
+
+    /* ── NEDEN VAR OLDUK ── */
+    #origin {
+      background: var(--color-cream);
+      padding: 12rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    #origin::before {
+      content: '';
+      position: absolute; top: 0; right: 0;
+      width: 45%; height: 100%;
+      background: url('https://picsum.photos/seed/mist901/800/1200') center/cover no-repeat;
+      opacity: 0.18;
+    }
+    .origin-inner {
+      max-width: 680px;
+      position: relative; z-index: 1;
+    }
+    .sec-label {
+      font-size: 0.68rem; font-weight: 400;
+      letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--color-stone); margin-bottom: 1.5rem;
+    }
+    .sec-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4.8rem);
+      font-weight: 300; line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--color-earth);
+      margin-bottom: 3rem;
+    }
+    .sec-title em { font-style: italic; color: var(--color-forest); }
+    .origin-body p {
+      font-size: 1rem; font-weight: 300;
+      line-height: 2.0; color: #5A5040;
+      margin-bottom: 1.8rem;
+      max-width: 560px;
+    }
+    .origin-body p:last-child { margin-bottom: 0; }
+    .origin-body strong {
+      font-weight: 500; color: var(--color-earth);
+    }
+    .pull-quote {
+      margin: 4rem 0;
+      padding: 2.5rem 3rem;
+      border-left: 2px solid var(--color-gold);
+      background: rgba(107,79,58,0.04);
+    }
+    .pull-quote p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.7rem; font-weight: 300;
+      font-style: italic; line-height: 1.5;
+      color: var(--color-earth);
+      margin: 0 !important;
+    }
+
+    /* ── DEĞERLER ── */
+    #values {
+      background: var(--color-dark);
+      padding: 12rem 4rem;
+    }
+    .values-head { margin-bottom: 6rem; }
+    .values-head .sec-label { color: rgba(140,140,122,0.55); }
+    .values-head .sec-title { color: var(--color-cream); max-width: 620px; }
+    .values-head .sec-title em { color: var(--color-gold); }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2px;
+      background: rgba(245,240,232,0.05);
+      border: 1px solid rgba(245,240,232,0.05);
+    }
+    .val-card {
+      background: var(--color-dark);
+      padding: 4rem 3.5rem;
+      position: relative; overflow: hidden;
+      transition: background 0.5s;
+    }
+    .val-card:hover { background: rgba(28,58,30,0.5); }
+    .val-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5rem; font-weight: 300;
+      color: rgba(200,169,110,0.08);
+      line-height: 1; margin-bottom: 2rem;
+      transition: color 0.5s;
+    }
+    .val-card:hover .val-num { color: rgba(200,169,110,0.18); }
+    .val-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 300;
+      color: var(--color-cream); line-height: 1.25;
+      margin-bottom: 1.2rem;
+    }
+    .val-rule {
+      width: 32px; height: 1px;
+      background: var(--color-gold);
+      margin-bottom: 1.4rem;
+      transition: width 0.5s var(--ease-out);
+    }
+    .val-card:hover .val-rule { width: 64px; }
+    .val-body {
+      font-size: 0.82rem; font-weight: 300;
+      line-height: 1.95; color: rgba(245,240,232,0.42);
+      max-width: 360px;
+    }
+
+    /* ── ARAZIYI TANIMAK ── */
+    #approach {
+      background: var(--color-forest);
+      padding: 12rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    #approach::after {
+      content: '';
+      position: absolute; bottom: 0; right: 0;
+      width: 50%; height: 70%;
+      background: url('https://picsum.photos/seed/woodframe301/900/700') center/cover no-repeat;
+      opacity: 0.12;
+      mask-image: linear-gradient(to left, rgba(0,0,0,0.8), transparent);
+      -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,0.8), transparent);
+    }
+    .approach-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8rem; align-items: start;
+      position: relative; z-index: 1;
+    }
+    .approach-left .sec-label { color: rgba(140,140,122,0.55); }
+    .approach-left .sec-title { color: var(--color-cream); margin-bottom: 3rem; }
+    .approach-left .sec-title em { color: var(--color-gold); }
+    .approach-steps { display: flex; flex-direction: column; gap: 0; }
+    .a-step {
+      display: flex; gap: 2rem;
+      padding: 2.2rem 0;
+      border-bottom: 1px solid rgba(245,240,232,0.08);
+      position: relative;
+    }
+    .a-step:first-child { border-top: 1px solid rgba(245,240,232,0.08); }
+    .a-step-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; font-weight: 300;
+      color: var(--color-gold); opacity: 0.7;
+      flex-shrink: 0; padding-top: 0.15rem;
+      letter-spacing: 0.1em;
+    }
+    .a-step-content {}
+    .a-step-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem; font-weight: 400;
+      color: var(--color-cream); margin-bottom: 0.6rem;
+      line-height: 1.3;
+    }
+    .a-step-body {
+      font-size: 0.8rem; font-weight: 300;
+      line-height: 1.9; color: rgba(245,240,232,0.4);
+    }
+
+    /* Approach right — large statement */
+    .approach-right {
+      display: flex; flex-direction: column;
+      justify-content: center; gap: 3rem;
+      padding-top: 2rem;
+    }
+    .statement {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3.5vw, 3.2rem);
+      font-weight: 300; line-height: 1.25;
+      color: var(--color-cream); letter-spacing: -0.015em;
+    }
+    .statement em { font-style: italic; color: var(--color-gold); }
+    .statement-body {
+      font-size: 0.85rem; font-weight: 300;
+      line-height: 1.95; color: rgba(245,240,232,0.42);
+      max-width: 400px;
+    }
+
+    /* ── EKİP ── */
+    #team {
+      background: var(--color-cream);
+      padding: 12rem 4rem;
+    }
+    .team-head { margin-bottom: 5rem; }
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem;
+    }
+    .t-card {}
+    .t-img {
+      width: 100%; aspect-ratio: 3/4;
+      overflow: hidden; margin-bottom: 1.8rem;
+      background: rgba(107,79,58,0.08);
+      position: relative;
+    }
+    .t-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      filter: saturate(0.4) brightness(0.85);
+      transition: filter 0.8s, transform 0.8s var(--ease-out);
+      display: block;
+    }
+    .t-card:hover .t-img img {
+      filter: saturate(0.7) brightness(1);
+      transform: scale(1.04);
+    }
+    .t-role {
+      font-size: 0.65rem; letter-spacing: 0.25em;
+      text-transform: uppercase; color: var(--color-gold);
+      margin-bottom: 0.4rem;
+    }
+    .t-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 400;
+      color: var(--color-earth); margin-bottom: 0.7rem;
+    }
+    .t-bio {
+      font-size: 0.78rem; font-weight: 300;
+      line-height: 1.85; color: #7A6A5A;
+    }
+
+    /* ── CTA BAND ── */
+    #cta-band {
+      background: var(--color-dark);
+      padding: 10rem 4rem;
+      display: flex; flex-direction: column;
+      align-items: center; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    #cta-band::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 60%, rgba(28,58,30,0.6) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-label {
+      font-size: 0.68rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: rgba(200,169,110,0.55);
+      margin-bottom: 2rem; position: relative; z-index: 1;
+    }
+    .cta-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 6vw, 5.5rem);
+      font-weight: 300; line-height: 1.1;
+      letter-spacing: -0.02em; color: var(--color-cream);
+      margin-bottom: 3.5rem; position: relative; z-index: 1;
+    }
+    .cta-title em { font-style: italic; color: var(--color-gold); }
+    .cta-btns {
+      display: flex; gap: 1.5rem; align-items: center;
+      flex-wrap: wrap; justify-content: center;
+      position: relative; z-index: 1;
+    }
+    .btn-primary {
+      padding: 1.1rem 3rem;
+      border: 1px solid rgba(200,169,110,0.45);
+      color: var(--color-cream);
+      font-size: 0.78rem; letter-spacing: 0.22em;
+      text-transform: uppercase; text-decoration: none;
+      background: transparent;
+      transition: background 0.4s, border-color 0.4s;
+    }
+    .btn-primary:hover {
+      background: rgba(200,169,110,0.09);
+      border-color: var(--color-gold);
+    }
+    .btn-ghost {
+      font-size: 0.78rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: rgba(245,240,232,0.4);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .btn-ghost:hover { color: var(--color-cream); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--color-dark);
+      padding: 3.5rem 4rem;
+      border-top: 1px solid rgba(245,240,232,0.05);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .f-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 300;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: rgba(245,240,232,0.3);
+    }
+    .f-copy { font-size: 0.68rem; color: rgba(245,240,232,0.18); letter-spacing: 0.08em; }
+
+    /* ── REVEAL ── */
+    .reveal {
+      opacity: 0; transform: translateY(22px);
+      transition: opacity 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 0.1s; }
+    .reveal-d2 { transition-delay: 0.22s; }
+    .reveal-d3 { transition-delay: 0.34s; }
+    .reveal-d4 { transition-delay: 0.46s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      #nav { padding: 1.5rem 2rem; }
+      #nav.scrolled { padding: 1rem 2rem; }
+      .nav-links { display: none; }
+      #origin, #values, #approach, #team, #cta-band { padding: 7rem 2rem; }
+      .values-grid { grid-template-columns: 1fr; }
+      .approach-grid { grid-template-columns: 1fr; gap: 5rem; }
+      .team-grid { grid-template-columns: 1fr; max-width: 400px; }
+      footer { padding: 2.5rem 2rem; flex-direction: column; gap: 1rem; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      body { cursor: auto; }
+      #cursor, #cursor-ring { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- ── NAV ── -->
+  <nav id="nav">
+    <a href="index.html" class="nav-logo">Doğa Evleri</a>
+    <ul class="nav-links">
+      <li><a href="about.html" class="active">Felsefemiz</a></li>
+      <li><a href="projects.html">Projeler</a></li>
+      <li><a href="process.html">Süreç</a></li>
+      <li><a href="contact.html">İletişim</a></li>
+    </ul>
+  </nav>
+
+  <!-- ── MANİFESTO HERO ── -->
+  <section id="manifesto">
+    <canvas id="manifesto-canvas"></canvas>
+    <div class="manifesto-inner">
+      <p class="manifesto-tag">Felsefemiz</p>
+      <h1 class="manifesto-quote">
+        Şehir, insanı hızlandırır.<br>
+        <em>Toprak, insanı durdurur.</em>
+      </h1>
+      <p class="manifesto-attr">Doğa Evleri &nbsp;·&nbsp; Kuruluş Manifestosu</p>
+    </div>
+    <div class="scroll-cue" id="scrollCue">
+      <span>Devam</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ── NEDEN VAR OLDUK ── -->
+  <section id="origin">
+    <div class="origin-inner">
+      <p class="sec-label reveal">Neden Var Olduk</p>
+      <h2 class="sec-title reveal reveal-d1">
+        Bir gün birisi şöyle dedi:<br>
+        <em>"Hayal ettim ama yapamadım."</em>
+      </h2>
+      <div class="origin-body">
+        <p class="reveal reveal-d2">
+          Şehir yaşamı insanı tüketir. Ama tükenme anında herkes aynı şeyi hayal eder:
+          <strong>ağaçların arasında, sesi sadece yağmur ve rüzgar olan bir yer.</strong>
+          Sabah sisi, tahta zemin, büyük bir cam ve dışarısı.
+          Bu hayal çok yaygın — ama neden bu kadar az insan onu gerçekleştiriyor?
+        </p>
+        <p class="reveal reveal-d2">
+          Cevap basitti: sistem buna izin vermiyor gibi görünüyor.
+          Konteyner evler ucuz ama ruhsuz. Prefabrik sistemler hızlı ama kimliksiz.
+          Klasik müteahhit pahalı, yavaş ve doğaya yabancı.
+          <strong>Hiçbiri o hayalin tam karşılığı değildi.</strong>
+        </p>
+
+        <div class="pull-quote reveal">
+          <p>"Her arazi bir şiir gibidir — önce onu anlamak, sonra ona cevap yazmak gerekir."</p>
+        </div>
+
+        <p class="reveal reveal-d1">
+          Biz bu boşluğu doldurmak için var olduk.
+          Ne ucuz, ne pahalı — <strong>doğru</strong> olmak için.
+          Karkas çelik yapı sistemi, doğanın direncine saygı duyan,
+          ama insanın konfor ihtiyacını da karşılayan tek yöntem olarak önümüzde duruyordu.
+          Ve her arazi, her hayal için sıfırdan tasarım — bu bir tercih değil, bizim için bir zorunluluktu.
+        </p>
+        <p class="reveal reveal-d2">
+          Doğa Evleri böyle doğdu. Bir hayalden değil —
+          <strong>bir ihtiyaçtan, bir inançtan ve toprağa duyulan derin bir saygıdan.</strong>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── DEĞERLER ── -->
+  <section id="values">
+    <div class="values-head">
+      <p class="sec-label reveal">Temel Değerlerimiz</p>
+      <h2 class="sec-title reveal reveal-d1">
+        Dört ilke,<br>
+        her evde <em>görünür</em>.
+      </h2>
+    </div>
+    <div class="values-grid">
+      <div class="val-card reveal">
+        <div class="val-num">01</div>
+        <h3 class="val-title">Arazi önce gelir.</h3>
+        <div class="val-rule"></div>
+        <p class="val-body">Hiçbir tasarım araziden önce başlamaz. Güneşin yönü, toprağın eğimi, egemen rüzgar — bunlar mimarın değil, doğanın kararıdır. Biz sadece dinleriz.</p>
+      </div>
+      <div class="val-card reveal reveal-d1">
+        <div class="val-num">02</div>
+        <h3 class="val-title">Yavaş düşün, sağlam yap.</h3>
+        <div class="val-rule"></div>
+        <p class="val-body">Hız bir değer değil. Karkas çelik ile inşa etmek, her bağlantı noktasını doğru kurmaktır. Aceleyle yapılan bir yapı, ilk fırtınada çatlar. Biz acele etmeyiz.</p>
+      </div>
+      <div class="val-card reveal">
+        <div class="val-num">03</div>
+        <h3 class="val-title">Doğayla kavga etme.</h3>
+        <div class="val-rule"></div>
+        <p class="val-body">Yapı, çevresini yok etmemeli — tamamlamalı. Ağaç kesilmez, kayalık bozulmaz. Tasarım, o araziye konuk olduğunu bilir. İçi dışarısı gibi, dışarısı içi gibi olur.</p>
+      </div>
+      <div class="val-card reveal reveal-d1">
+        <div class="val-num">04</div>
+        <h3 class="val-title">Sahip ol, değil sat.</h3>
+        <div class="val-rule"></div>
+        <p class="val-body">Biz konut üretmiyoruz. Yaşam alanı kuruyoruz. Bir evi teslim ettiğimizde, o evin sorumluluğunu üstlenmiş oluyoruz. Müşterimiz değil, komşumuz oluyorsunuz.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── ARAZIYI TANIMAK ── -->
+  <section id="approach">
+    <div class="approach-grid">
+      <div class="approach-left">
+        <p class="sec-label reveal">Nasıl Çalışırız</p>
+        <h2 class="sec-title reveal reveal-d1">
+          Toprağa sormadan<br>
+          kalem <em>tutmayız</em>.
+        </h2>
+        <div class="approach-steps">
+          <div class="a-step reveal">
+            <span class="a-step-num">—01</span>
+            <div class="a-step-content">
+              <h4 class="a-step-title">Araziyi oku</h4>
+              <p class="a-step-body">Güneş açısı, zemin etüdü, çevre dokusu ve görsel sürekliliği analiz ederiz. Araziniz bize bir dil konuşur — biz onu çözümleriz.</p>
+            </div>
+          </div>
+          <div class="a-step reveal">
+            <span class="a-step-num">—02</span>
+            <div class="a-step-content">
+              <h4 class="a-step-title">Hayali dinle</h4>
+              <p class="a-step-body">Teknik detaylardan önce hayatı konuşuruz. Nasıl uyandığınız, gece nerede oturduğunuz, sesi nasıl duyduğunuz — bunlar tasarımın gerçek girdileridir.</p>
+            </div>
+          </div>
+          <div class="a-step reveal">
+            <span class="a-step-num">—03</span>
+            <div class="a-step-content">
+              <h4 class="a-step-title">İskelet kur</h4>
+              <p class="a-step-body">Karkas çelik yapı sistemi ile araziye özel statik hesaplamalar yapılır. Depreme dayanıklı, uzun ömürlü, servis edilebilir bir omurga.</p>
+            </div>
+          </div>
+          <div class="a-step reveal">
+            <span class="a-step-num">—04</span>
+            <div class="a-step-content">
+              <h4 class="a-step-title">Yaşamı teslim et</h4>
+              <p class="a-step-body">Sadece anahtarı değil, o evin dilini teslim ederiz. Hangi sabah ışık nereden girer, hangi akşam hangi pencereden bakılır — hepsi sizin.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="approach-right">
+        <div class="reveal">
+          <p class="statement">Her ev, o araziye<br>düşmüş bir rüyanın<br><em>çelik iskeletidir.</em></p>
+        </div>
+        <p class="statement-body reveal reveal-d1">
+          Bu cümleyi kurduğumuzda gerçek bir şeyi anlatmak istedik: tasarım, soyut bir çizimden ibaret değildir.
+          Toprağa basan ayaklar, çatıya vuran yağmur, pencereden giren sabah sisi —
+          bunların hepsi o iskeletin içinde yaşar.
+          Biz sadece o iskeleti kuruyoruz.
+        </p>
+        <p class="statement-body reveal reveal-d2">
+          Çelik, doğayla çatışmaz. Bükülebilir, uzayabilir, toprağa tutunabilir.
+          Doğru ellerde, bu malzeme bir yapıyı değil —
+          <strong style="color: var(--color-gold); font-weight: 400;">bir kökü</strong> temsil eder.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── EKİP ── -->
+  <section id="team">
+    <div class="team-head">
+      <p class="sec-label reveal">Arkasındaki İnsanlar</p>
+      <h2 class="sec-title reveal reveal-d1">
+        Doğayı seven,<br>
+        <em>elleriyle kuran</em> ekip.
+      </h2>
+    </div>
+    <div class="team-grid">
+      <div class="t-card reveal">
+        <div class="t-img">
+          <img src="https://picsum.photos/seed/person401/500/700" alt="Kurucu Ortak" loading="lazy">
+        </div>
+        <p class="t-role">Kurucu &nbsp;·&nbsp; Mimar</p>
+        <h3 class="t-name">Murat Bozbeyoğlu</h3>
+        <p class="t-bio">Orman mühendisliğinden mimarlığa geçen nadir isimlerden. Her araziye önce ağaç, sonra mimar gözüyle bakar.</p>
+      </div>
+      <div class="t-card reveal reveal-d1">
+        <div class="t-img">
+          <img src="https://picsum.photos/seed/person402/500/700" alt="İnşaat Mühendisi" loading="lazy">
+        </div>
+        <p class="t-role">İnşaat Mühendisi</p>
+        <h3 class="t-name">Selin Arslan</h3>
+        <p class="t-bio">Karkas çelik sistemlerde 12 yıllık deneyim. Bir yapının ne kadar güzel göründüğü kadar, ne kadar sağlam durduğuna odaklanır.</p>
+      </div>
+      <div class="t-card reveal reveal-d2">
+        <div class="t-img">
+          <img src="https://picsum.photos/seed/person403/500/700" alt="Peyzaj Tasarımcısı" loading="lazy">
+        </div>
+        <p class="t-role">Peyzaj Tasarımcısı</p>
+        <h3 class="t-name">Emre Çelik</h3>
+        <p class="t-bio">Evin bittiği yerde doğanın başladığı noktayı tasarlar. Bahçe değil, süreklilik yaratır.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA BAND ── -->
+  <section id="cta-band">
+    <p class="cta-label reveal">Bir Sonraki Adım</p>
+    <h2 class="cta-title reveal reveal-d1">
+      Arazin var mı?<br>
+      <em>Hayal yeter.</em>
+    </h2>
+    <div class="cta-btns reveal reveal-d2">
+      <a href="contact.html" class="btn-primary">Hayalini Anlat</a>
+      <a href="projects.html" class="btn-ghost">Projeleri Gör &rarr;</a>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span class="f-logo">Doğa Evleri</span>
+    <span class="f-copy">© 2024 &nbsp;·&nbsp; Toprağa köklenen her yapı için</span>
+  </footer>
+
+  <script>
+  // ════════════════════════════════════════════
+  //  CURSOR
+  // ════════════════════════════════════════════
+  const cursorDot  = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursor-ring');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove', e => {
+    mx=e.clientX; my=e.clientY;
+    cursorDot.style.left=mx+'px'; cursorDot.style.top=my+'px';
+  });
+  (function tickRing(){
+    rx+=(mx-rx)*0.1; ry+=(my-ry)*0.1;
+    cursorRing.style.left=rx+'px'; cursorRing.style.top=ry+'px';
+    requestAnimationFrame(tickRing);
+  })();
+  document.querySelectorAll('a,button,.val-card,.t-card').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{
+      cursorDot.style.transform='translate(-50%,-50%) scale(2.5)';
+      cursorRing.style.width='58px'; cursorRing.style.height='58px';
+      cursorRing.style.borderColor='rgba(200,169,110,0.55)';
+    });
+    el.addEventListener('mouseleave',()=>{
+      cursorDot.style.transform='translate(-50%,-50%) scale(1)';
+      cursorRing.style.width='36px'; cursorRing.style.height='36px';
+      cursorRing.style.borderColor='rgba(200,169,110,0.35)';
+    });
+  });
+
+  // ════════════════════════════════════════════
+  //  NAV
+  // ════════════════════════════════════════════
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>80),{passive:true});
+
+  // ════════════════════════════════════════════
+  //  THREE.JS — MANIFESTO BACKGROUND
+  //  Yükselen ışık partikülleri + ağaç siluetleri
+  // ════════════════════════════════════════════
+  (function manifestoScene(){
+    const canvas = document.getElementById('manifesto-canvas');
+    const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:true});
+    renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+    renderer.setClearColor(0x0F1A0F,1);
+
+    const W=()=>canvas.offsetWidth, H=()=>canvas.offsetHeight;
+    renderer.setSize(W(),H());
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x0A140A, 0.018);
+
+    const camera = new THREE.PerspectiveCamera(65,W()/H(),0.1,150);
+    camera.position.set(0,3,20);
+    camera.lookAt(0,5,0);
+
+    // Ground grid
+    const grid = new THREE.GridHelper(60,30,0x1A3A1A,0x1A3A1A);
+    grid.material.transparent=true; grid.material.opacity=0.2;
+    scene.add(grid);
+
+    // Silhouette trees — flat planes fading into fog
+    function silTree(x,z,h,w){
+      const geo = new THREE.PlaneGeometry(w,h);
+      const mat = new THREE.MeshBasicMaterial({
+        color:0x0D2210, transparent:true, opacity:0.7, side:THREE.DoubleSide
+      });
+      const mesh = new THREE.Mesh(geo,mat);
+      mesh.position.set(x,h/2,z);
+      scene.add(mesh);
+      // trunk
+      const tGeo = new THREE.PlaneGeometry(w*0.06, h*0.3);
+      const tMesh = new THREE.Mesh(tGeo, new THREE.MeshBasicMaterial({color:0x0A1A0A,transparent:true,opacity:0.9,side:THREE.DoubleSide}));
+      tMesh.position.set(x,-h*0.02,z);
+      scene.add(tMesh);
+    }
+
+    const treeData=[
+      [-18,0,14,4],[-14,-3,11,3],[-22,2,16,5],
+      [-10,-6,12,3.5],[-25,4,18,5.5],[-8,-1,9,2.5],
+      [18,0,14,4],[14,-3,11,3],[22,2,16,5],
+      [10,-6,12,3.5],[25,4,18,5.5],[8,-1,9,2.5],
+      [-4,-8,7,2],[4,-8,7,2],[0,-9,6,1.8],
+    ];
+    treeData.forEach(([x,z,h,w])=>silTree(x,z,h,w));
+
+    // Rising particles — firefly / mist feel
+    const pCount = 400;
+    const pPos   = new Float32Array(pCount*3);
+    const pVel   = new Float32Array(pCount);   // rise speed
+    const pPhase = new Float32Array(pCount);   // flicker phase
+    for(let i=0;i<pCount;i++){
+      pPos[i*3]   = (Math.random()-0.5)*50;
+      pPos[i*3+1] = Math.random()*20;
+      pPos[i*3+2] = (Math.random()-0.5)*30;
+      pVel[i]   = 0.008 + Math.random()*0.018;
+      pPhase[i] = Math.random()*Math.PI*2;
+    }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute('position', new THREE.Float32BufferAttribute(pPos,3));
+    const pMat = new THREE.PointsMaterial({color:0xC8A96E, size:0.07, transparent:true, opacity:0.5});
+    const points = new THREE.Points(pGeo,pMat);
+    scene.add(points);
+
+    // Horizontal mist layers
+    for(let i=0;i<5;i++){
+      const mGeo = new THREE.PlaneGeometry(80,6);
+      const mMat = new THREE.MeshBasicMaterial({
+        color:0x1A3A1A, transparent:true, opacity:0.06+i*0.02,
+        side:THREE.DoubleSide, depthWrite:false
+      });
+      const mist = new THREE.Mesh(mGeo,mMat);
+      mist.rotation.x = -Math.PI/2;
+      mist.position.y = 0.5 + i*1.5;
+      scene.add(mist);
+    }
+
+    window.addEventListener('resize',()=>{
+      camera.aspect=W()/H();
+      camera.updateProjectionMatrix();
+      renderer.setSize(W(),H());
+    });
+
+    let t=0;
+    const posAttr = pGeo.attributes.position;
+    (function tick(){
+      requestAnimationFrame(tick);
+      t+=0.005;
+
+      // Rise & recycle particles
+      for(let i=0;i<pCount;i++){
+        posAttr.array[i*3+1] += pVel[i];
+        posAttr.array[i*3]   += Math.sin(t+pPhase[i])*0.005;
+        if(posAttr.array[i*3+1] > 22){
+          posAttr.array[i*3+1] = 0;
+          posAttr.array[i*3]   = (Math.random()-0.5)*50;
+          posAttr.array[i*3+2] = (Math.random()-0.5)*30;
+        }
+      }
+      posAttr.needsUpdate=true;
+
+      // Flicker opacity
+      pMat.opacity = 0.35 + Math.sin(t*1.2)*0.1;
+
+      // Very slow camera drift
+      camera.position.x = Math.sin(t*0.06)*1.5;
+      camera.position.y = 3 + Math.sin(t*0.04)*0.5;
+      camera.lookAt(0,5,0);
+
+      renderer.render(scene,camera);
+    })();
+  })();
+
+  // ════════════════════════════════════════════
+  //  GSAP — entrance
+  // ════════════════════════════════════════════
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.timeline({delay:0.4})
+    .to('.manifesto-tag',   {opacity:1,y:0,duration:1,   ease:'power3.out'})
+    .to('.manifesto-quote', {opacity:1,y:0,duration:1.4, ease:'power3.out'},'-=0.65')
+    .to('.manifesto-attr',  {opacity:1,y:0,duration:0.9, ease:'power3.out'},'-=0.7')
+    .to('#scrollCue',       {opacity:1,    duration:0.7, ease:'power2.out'},'-=0.4');
+
+  // ════════════════════════════════════════════
+  //  INTERSECTION OBSERVER
+  // ════════════════════════════════════════════
+  const ro = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); });
+  },{threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+  </script>
+</body>
+</html>
