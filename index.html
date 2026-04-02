@@ -783,19 +783,19 @@
     </h2>
 
     <div class="diff-grid">
-      <div class="diff-card reveal reveal-d1">
+      <div class="diff-card">
         <p class="diff-vs">Konteyner Evler ile Karşılaştırma</p>
         <h3 class="diff-title">Standart kutular,<br>sınırlı hayaller.</h3>
         <div class="diff-rule"></div>
         <p class="diff-body">Konteyner evler sabit modüller üzerine inşa edilir. Arazinizin şekli, bakış yönü, rüzgar durumu — bunların hiçbiri değiştirilemez kalıba yansımaz. Bizde her ev, sıfırdan o arazi için doğar.</p>
       </div>
-      <div class="diff-card reveal reveal-d2">
+      <div class="diff-card">
         <p class="diff-vs">Prefabrik Sistemler ile Karşılaştırma</p>
         <h3 class="diff-title">Fabrika çıkışı,<br>ruhsuz yapılar.</h3>
         <div class="diff-rule"></div>
         <p class="diff-body">Prefabrik sistemler hızlı ama kimliksizdir. Yüzlerce kişiye aynı evi verirler. Bizim işimizin özü bu farktan doğar: sizin araziniz, sizin yaşamınız, sadece sizin eviniz.</p>
       </div>
-      <div class="diff-card reveal reveal-d3">
+      <div class="diff-card">
         <p class="diff-vs">Klasik Müteahhit ile Karşılaştırma</p>
         <h3 class="diff-title">Beton bloklar,<br>doğayla kavga.</h3>
         <div class="diff-rule"></div>
@@ -1461,7 +1461,7 @@
   // ════════════════════════════════════════════
   const ro = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
-  }, { threshold: 0.12 });
+  }, { threshold: 0, rootMargin: '0px 0px -60px 0px' });
   document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
 
   // ════════════════════════════════════════════
