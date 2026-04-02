@@ -322,7 +322,7 @@
 
     /* ── SCROLL STORY ────────────────────────── */
     #story { position: relative; background: var(--color-dark); }
-    .story-pin { height: 400vh; position: relative; }
+    .story-pin { height: 300vh; position: relative; }
     .story-sticky {
       position: sticky;
       top: 0;
@@ -342,8 +342,8 @@
       max-width: 380px;
       opacity: 0;
       pointer-events: none;
+      transition: opacity 0.6s ease, transform 0.6s ease;
     }
-    #step1 { opacity: 1; }
     #step1 { left: 5vw; }
     #step2 { right: 5vw; text-align: right; }
     #step3 { left: 5vw; }
@@ -778,8 +778,8 @@
 
   <!-- ── DIFFERENCE ── -->
   <section id="difference">
-    <p class="sec-label reveal">Neden Farklıyız</p>
-    <h2 class="sec-title reveal reveal-d1">
+    <p class="sec-label">Neden Farklıyız</p>
+    <h2 class="sec-title">
       Konteyner de değil,<br>
       prefabrik de.<br>
       <em>Tamamen sizin.</em>
@@ -1399,12 +1399,16 @@
 
     // ── Adım metinleri ──
     const stepDefs = [
-      { id:'step1', in:-0.01, out:0.22, dir: 1 },
-      { id:'step2', in:0.18,  out:0.40, dir:-1 },
-      { id:'step3', in:0.37,  out:0.58, dir: 1 },
-      { id:'step4', in:0.55,  out:0.77, dir:-1 },
-      { id:'step5', in:0.74,  out:1.00, dir: 1 },
+      { id:'step1', in: 0.00, out:0.22, dir: 1 },
+      { id:'step2', in: 0.20, out:0.42, dir:-1 },
+      { id:'step3', in: 0.40, out:0.62, dir: 1 },
+      { id:'step4', in: 0.60, out:0.82, dir:-1 },
+      { id:'step5', in: 0.80, out:1.00, dir: 1 },
     ];
+    // Başlangıçta step1 görünür
+    document.getElementById('step1').style.opacity = 1;
+    document.getElementById('step1').style.transform = 'translateY(-50%) translateX(0px)';
+
     ScrollTrigger.create({
       trigger: '.story-pin', start: 'top top', end: 'bottom bottom', scrub: true,
       onUpdate(self) {
@@ -1413,7 +1417,7 @@
           const el = document.getElementById(id);
           const mid = (si+so)/2;
           let alpha, tx;
-          if      (p<=si)  { alpha=0; tx=70*dir; }
+          if      (p<=si)  { alpha = id==='step1' ? 1 : 0; tx = id==='step1' ? 0 : 70*dir; }
           else if (p<=mid) { const t=(p-si)/(mid-si); alpha=t; tx=70*dir*(1-t); }
           else if (p<=so)  { const t=(p-mid)/(so-mid); alpha=1-t; tx=-70*dir*t; }
           else             { alpha=0; tx=-70*dir; }
