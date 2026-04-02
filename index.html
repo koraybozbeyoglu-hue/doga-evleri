@@ -322,7 +322,7 @@
 
     /* ── SCROLL STORY ────────────────────────── */
     #story { position: relative; background: var(--color-dark); }
-    .story-pin { height: 500vh; position: relative; }
+    .story-pin { height: 400vh; position: relative; }
     .story-sticky {
       position: sticky;
       top: 0;
@@ -343,6 +343,7 @@
       opacity: 0;
       pointer-events: none;
     }
+    #step1 { opacity: 1; }
     .story-step:nth-child(odd)  { left: 5vw; }
     .story-step:nth-child(even) { right: 5vw; text-align: right; }
     .step-num {
@@ -389,7 +390,7 @@
       line-height: 1.1;
       letter-spacing: -0.02em;
       color: var(--color-earth);
-      margin-bottom: 5rem;
+      margin-bottom: 3rem;
       max-width: 680px;
     }
     .sec-title em { font-style: italic; color: var(--color-forest); }
@@ -1395,11 +1396,11 @@
 
     // ── Adım metinleri ──
     const stepDefs = [
-      { id:'step1', in:0.00, out:0.22, dir: 1 },
-      { id:'step2', in:0.18, out:0.40, dir:-1 },
-      { id:'step3', in:0.37, out:0.58, dir: 1 },
-      { id:'step4', in:0.55, out:0.77, dir:-1 },
-      { id:'step5', in:0.74, out:1.00, dir: 1 },
+      { id:'step1', in:-0.01, out:0.22, dir: 1 },
+      { id:'step2', in:0.18,  out:0.40, dir:-1 },
+      { id:'step3', in:0.37,  out:0.58, dir: 1 },
+      { id:'step4', in:0.55,  out:0.77, dir:-1 },
+      { id:'step5', in:0.74,  out:1.00, dir: 1 },
     ];
     ScrollTrigger.create({
       trigger: '.story-pin', start: 'top top', end: 'bottom bottom', scrub: true,
