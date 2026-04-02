@@ -901,11 +901,14 @@
   // ════════════════════════════════════════════
   const hamburger   = document.getElementById('hamburger');
   const mobileMenu  = document.getElementById('mobileMenu');
-  hamburger.addEventListener('click', () => {
+  function toggleMenu(e) {
+    e.preventDefault();
     const open = hamburger.classList.toggle('open');
     mobileMenu.classList.toggle('open', open);
     document.body.style.overflow = open ? 'hidden' : '';
-  });
+  }
+  hamburger.addEventListener('click', toggleMenu);
+  hamburger.addEventListener('touchend', toggleMenu);
   mobileMenu.querySelectorAll('a').forEach(a => {
     a.addEventListener('click', () => {
       hamburger.classList.remove('open');
@@ -957,14 +960,6 @@
   window.addEventListener('scroll', () => {
     nav.classList.toggle('scrolled', window.scrollY > 80);
   }, { passive: true });
-
-  // ── HAMBURGer ──
-  const hamburger = document.getElementById('hamburger');
-  const mobileMenu = document.getElementById('mobileMenu');
-  function toggleMenu(e){ e.preventDefault(); hamburger.classList.toggle('open'); mobileMenu.classList.toggle('open'); }
-  hamburger.addEventListener('click', toggleMenu);
-  hamburger.addEventListener('touchend', toggleMenu);
-  mobileMenu.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{ hamburger.classList.remove('open'); mobileMenu.classList.remove('open'); }));
 
   // ════════════════════════════════════════════
   //  THREE.JS — HERO
