@@ -966,141 +966,154 @@
   //  THREE.JS — HERO
   // ════════════════════════════════════════════
   (function heroScene() {
-    const canvas   = document.getElementById('hero-canvas');
+    const canvas = document.getElementById('hero-canvas');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setClearColor(0x0F1A0F, 1);
+    renderer.setClearColor(0x050D05, 1);
 
     const W = () => canvas.offsetWidth;
     const H = () => canvas.offsetHeight;
     renderer.setSize(W(), H());
 
-    const scene  = new THREE.Scene();
-    scene.fog    = new THREE.FogExp2(0x0F1A0F, 0.03);
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x060E06, 0.038);
 
-    const camera = new THREE.PerspectiveCamera(58, W()/H(), 0.1, 120);
-    camera.position.set(0, 2.5, 13);
-    camera.lookAt(0, 1.8, 0);
+    const camera = new THREE.PerspectiveCamera(65, W()/H(), 0.1, 80);
+    camera.position.set(0, 1.8, 0);
+    camera.lookAt(0, 1.8, -20);
 
-    // ── Materials ──
-    const wireMat = new THREE.LineBasicMaterial({ color: 0x8B9D5E, transparent: true, opacity: 0.75 });
-    const goldMat = new THREE.LineBasicMaterial({ color: 0xC8A96E, transparent: true, opacity: 0.35 });
+    // ── Işıklar ──
+    scene.add(new THREE.AmbientLight(0x0A1A0A, 4));
+    const moonLight = new THREE.DirectionalLight(0x334466, 0.5);
+    moonLight.position.set(-8, 18, 5);
+    scene.add(moonLight);
+    const houseGlow = new THREE.PointLight(0xFF8833, 3, 20);
+    houseGlow.position.set(0, 2, -24);
+    scene.add(houseGlow);
 
-    // ── Helpers ──
-    function lineSegs(positions, mat) {
-      const g = new THREE.BufferGeometry();
-      g.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-      return new THREE.LineSegments(g, mat.clone());
+    // ── Zemin ──
+    const ground = new THREE.Mesh(
+      new THREE.PlaneGeometry(100, 100),
+      new THREE.MeshLambertMaterial({ color: 0x080F06 })
+    );
+    ground.rotation.x = -Math.PI / 2;
+    scene.add(ground);
+
+    // ── Ağaç fonksiyonu ──
+    function makeTree(x, z, sc, baseOpacity) {
+      const g = new THREE.Group();
+      const trunkH = (1.0 + Math.random() * 0.6) * sc;
+      g.add(Object.assign(
+        new THREE.Mesh(
+          new THREE.CylinderGeometry(0.05*sc, 0.12*sc, trunkH, 5),
+          new THREE.MeshLambertMaterial({ color: 0x150A04, transparent: true, opacity: baseOpacity })
+        ),
+        { position: new THREE.Vector3(0, trunkH*0.5, 0) }
+      ));
+      const layers = 3 + Math.floor(Math.random()*2);
+      const tH = (3.5 + Math.random()*2.5) * sc;
+      for (let l = 0; l < layers; l++) {
+        const f = l / (layers-1);
+        const cone = new THREE.Mesh(
+          new THREE.ConeGeometry((1.5-f*1.0)*sc, (tH/layers)*1.4, 7),
+          new THREE.MeshLambertMaterial({
+            color: new THREE.Color().setHSL(0.33, 0.38+Math.random()*0.15, 0.055+f*0.03),
+            transparent: true,
+            opacity: baseOpacity * (0.8+f*0.2)
+          })
+        );
+        cone.position.y = trunkH + (l*(tH/layers)*0.52) + (tH/layers)*0.38;
+        g.add(cone);
+      }
+      g.position.set(x, 0, z);
+      scene.add(g);
+      return g;
     }
 
-    function boxEdges(w, h, d, mat) {
-      return new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w, h, d)), mat.clone());
+    // Yoğun orman — derinlik katmanları
+    for (let i = 0; i < 65; i++) {
+      const z   = -1.5 - Math.random()*38;
+      const side = Math.random()>0.5 ? 1 : -1;
+      const x   = side * (3.2 + Math.random()*10);
+      const sc  = 0.65 + Math.random()*0.7;
+      const op  = 0.45 + (Math.abs(z)/38)*0.45;
+      makeTree(x, z, sc, op);
+    }
+    // Yolu çerçeveleyen ağaçlar
+    for (let i = 0; i < 9; i++) {
+      const z = -3.5 - i*3.8;
+      makeTree(-3.4+(Math.random()-0.5)*0.5, z, 0.95, 0.88);
+      makeTree( 3.4+(Math.random()-0.5)*0.5, z, 0.95, 0.88);
     }
 
-    // ── House group ──
-    const house = new THREE.Group();
+    // ── Uzaktaki ev silueti ──
+    const houseGrp = new THREE.Group();
+    houseGrp.position.set(0, 0, -26);
+    const houseMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(5, 3, 4),
+      new THREE.MeshLambertMaterial({ color: 0x120D06 })
+    );
+    houseMesh.position.y = 1.5;
+    houseGrp.add(houseMesh);
+    const roofGeo = new THREE.ConeGeometry(3.6, 2, 4);
+    roofGeo.rotateY(Math.PI/4);
+    const roofMesh = new THREE.Mesh(roofGeo, new THREE.MeshLambertMaterial({ color: 0x0C0804 }));
+    roofMesh.position.y = 4;
+    houseGrp.add(roofMesh);
+    // Pencere ışığı
+    const winGlow = new THREE.Mesh(
+      new THREE.PlaneGeometry(2.2, 1.3),
+      new THREE.MeshBasicMaterial({ color: 0xFFAA33, transparent: true, opacity: 0.55 })
+    );
+    winGlow.position.set(0, 1.7, 2.02);
+    houseGrp.add(winGlow);
+    scene.add(houseGrp);
 
-    // Body
-    const body = boxEdges(5, 3.8, 4.2, wireMat);
-    body.position.y = 1.9;
-    house.add(body);
-
-    // Roof ridge prism
-    const rp = [-2.7,0,-2.2,  2.7,0,-2.2,  0,2,0,  // front face
-                -2.7,0,-2.2,  0,2,0,               // left slope
-                 2.7,0,-2.2,  2.7,0, 2.2,           // right base
-                 2.7,0, 2.2,  0,2,0,               // right back slope
-                 0,2,0,       -2.7,0, 2.2,           // ridge back-left
-                -2.7,0, 2.2, -2.7,0,-2.2,           // left base
-                -2.7,0, 2.2,  2.7,0, 2.2,           // back base
-                -2.7,0,-2.2,  2.7,0,-2.2,           // front base (dup for symmetry)
-                 0,2,0,       0,2,0];               // ridge (degenerate, ignored)
-    // Build roof as explicit edge pairs
-    const roofEdges = [
-      [-2.7,0,-2.2], [2.7,0,-2.2],   // front base
-      [2.7,0,-2.2],  [2.7,0, 2.2],   // right base
-      [2.7,0, 2.2],  [-2.7,0, 2.2],  // back base
-      [-2.7,0, 2.2], [-2.7,0,-2.2],  // left base
-      [-2.7,0,-2.2], [0,2,0],        // front-left slope
-      [2.7,0,-2.2],  [0,2,0],        // front-right slope
-      [-2.7,0, 2.2], [0,2,0],        // back-left slope
-      [2.7,0, 2.2],  [0,2,0],        // back-right slope
-      [-2.7,0,-2.2], [-2.7,0, 2.2],  // left eave
-      [2.7,0,-2.2],  [2.7,0, 2.2],   // right eave
-    ];
-    const roofPos = [];
-    roofEdges.forEach(([x,y,z]) => roofPos.push(x,y,z));
-    const roof = lineSegs(roofPos, goldMat);
-    roof.position.y = 3.8;
-    house.add(roof);
-
-    // Windows — front face
-    function winRect(cx, cy, cz, w, h, ry = 0) {
-      const hw = w/2, hh = h/2;
-      const pts = [
-        [-hw,-hh,0],  [hw,-hh,0],
-        [hw,-hh,0],   [hw, hh,0],
-        [hw, hh,0],   [-hw, hh,0],
-        [-hw, hh,0],  [-hw,-hh,0],
-        // cross
-        [-hw, 0, 0],  [hw, 0, 0],
-        [0,-hh, 0],   [0, hh, 0],
-      ];
-      const pos = [];
-      pts.forEach(([x,y,z]) => pos.push(x,y,z));
-      const seg = lineSegs(pos, goldMat);
-      seg.position.set(cx, cy, cz);
-      seg.rotation.y = ry;
-      house.add(seg);
-    }
-    winRect(-1.3, 2.3, 2.11, 1.3, 1.2);
-    winRect( 1.3, 2.3, 2.11, 1.3, 1.2);
-    winRect( 0,   1.1, 2.11, 0.9, 1.8); // door
-    winRect( 2.61, 2.3, 0.4, 1.1, 1.1, Math.PI/2);
-
-    scene.add(house);
-
-    // Grid
-    const grid = new THREE.GridHelper(40, 22, 0x1C3A1E, 0x1C3A1E);
-    grid.material.transparent = true;
-    grid.material.opacity = 0.3;
-    scene.add(grid);
-
-    // Trees
-    function addTree(x, z, h) {
-      const trunk = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.CylinderGeometry(0.05, 0.1, h*0.4, 5)),
-        new THREE.LineBasicMaterial({ color: 0x2D4A2E, transparent: true, opacity: 0.4 })
+    // ── Zemin sisi — yüzer düzlemler ──
+    const mistGrp = new THREE.Group();
+    for (let i = 0; i < 22; i++) {
+      const mist = new THREE.Mesh(
+        new THREE.PlaneGeometry(7+Math.random()*9, 1.8+Math.random()),
+        new THREE.MeshBasicMaterial({ color:0x1A3A18, transparent:true, opacity:0.03+Math.random()*0.05, depthWrite:false })
       );
-      trunk.position.set(x, h*0.2, z);
-      scene.add(trunk);
-      const foliage = new THREE.LineSegments(
-        new THREE.EdgesGeometry(new THREE.ConeGeometry(0.65, h*0.65, 6)),
-        new THREE.LineBasicMaterial({ color: 0x1C3A1E, transparent: true, opacity: 0.3 })
-      );
-      foliage.position.set(x, h*0.65, z);
-      scene.add(foliage);
+      mist.rotation.x = -Math.PI/2 + (Math.random()-0.5)*0.08;
+      mist.position.set((Math.random()-0.5)*18, 0.1+Math.random()*0.5, -1-Math.random()*30);
+      mistGrp.add(mist);
     }
-    [[-8,-2,4.5],[-10,2,5.5],[-7,5,3.5],[8,-2,4],[10,2,5],[7,-5,3.5],[-5,-7,5],[5,6,4]].forEach(([x,z,h]) => addTree(x,z,h));
+    scene.add(mistGrp);
 
-    // Particles
-    const pCount = 250;
-    const pPos   = new Float32Array(pCount * 3);
-    for (let i = 0; i < pCount; i++) {
-      pPos[i*3]   = (Math.random()-0.5) * 50;
-      pPos[i*3+1] = Math.random() * 18;
-      pPos[i*3+2] = (Math.random()-0.5) * 50;
+    // ── Ateşböcekleri ──
+    const ffCount = 200;
+    const ffPos   = new Float32Array(ffCount*3);
+    const ffPhase = new Float32Array(ffCount);
+    for (let i = 0; i < ffCount; i++) {
+      ffPos[i*3]   = (Math.random()-0.5)*20;
+      ffPos[i*3+1] = 0.3+Math.random()*4.5;
+      ffPos[i*3+2] = -0.5-Math.random()*32;
+      ffPhase[i]   = Math.random()*Math.PI*2;
     }
-    const pGeo = new THREE.BufferGeometry();
-    pGeo.setAttribute('position', new THREE.Float32BufferAttribute(pPos, 3));
-    const particles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xC8A96E, size: 0.05, transparent: true, opacity: 0.35 }));
-    scene.add(particles);
+    const ffGeo = new THREE.BufferGeometry();
+    ffGeo.setAttribute('position', new THREE.Float32BufferAttribute(ffPos,3));
+    const fireflies = new THREE.Points(ffGeo, new THREE.PointsMaterial({ color:0xCCFF44, size:0.065, transparent:true, opacity:0.75 }));
+    scene.add(fireflies);
 
-    // Mouse parallax
-    let tRotX = 0, tRotY = 0, cRotX = 0, cRotY = 0;
+    // ── Yıldızlar ──
+    const stPos = new Float32Array(350*3);
+    for (let i = 0; i < 350; i++) {
+      stPos[i*3]   = (Math.random()-0.5)*110;
+      stPos[i*3+1] = 9+Math.random()*35;
+      stPos[i*3+2] = (Math.random()-0.5)*110;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute('position', new THREE.Float32BufferAttribute(stPos,3));
+    const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color:0xDDE8FF, size:0.07, transparent:true, opacity:0.42 }));
+    scene.add(stars);
+
+    // ── Mouse parallax ──
+    let mx = 0, my = 0, cx = 0, cy = 0;
     document.addEventListener('mousemove', e => {
-      tRotY = (e.clientX / innerWidth  - 0.5) * 0.35;
-      tRotX = (e.clientY / innerHeight - 0.5) * 0.18;
+      mx = (e.clientX/innerWidth  - 0.5) * 3;
+      my = (e.clientY/innerHeight - 0.5) * 1;
     });
 
     window.addEventListener('resize', () => {
@@ -1109,17 +1122,38 @@
       renderer.setSize(W(), H());
     });
 
-    let t = 0;
+    let t = 0, camZ = 0;
     (function tick() {
       requestAnimationFrame(tick);
       t += 0.004;
-      cRotX += (tRotX - cRotX) * 0.05;
-      cRotY += (tRotY - cRotY) * 0.05;
-      house.rotation.y = cRotY + t * 0.08;
-      house.rotation.x = cRotX * 0.25;
-      const b = 1 + Math.sin(t * 0.7) * 0.008;
-      house.scale.setScalar(b);
-      particles.rotation.y += 0.0004;
+
+      // Yavaş ilerleme — orman içine dalış hissi
+      camZ -= 0.012;
+      if (camZ < -9) camZ = 0; // loop
+      cx += (mx - cx) * 0.04;
+      cy += (my - cy) * 0.04;
+      camera.position.set(cx, 1.8 - cy*0.25, camZ);
+      camera.lookAt(cx*0.25, 1.8, camZ - 40);
+
+      // Ateşböceği hareketi
+      const fp = ffGeo.attributes.position;
+      for (let i = 0; i < ffCount; i++) {
+        fp.setY(i, fp.getY(i) + 0.003 + Math.sin(t*0.7+ffPhase[i])*0.002);
+        fp.setX(i, fp.getX(i) + Math.sin(t*0.45+ffPhase[i])*0.005);
+        if (fp.getY(i) > 5.5) fp.setY(i, 0.3);
+      }
+      fp.needsUpdate = true;
+
+      // Ateşböceği titreme
+      fireflies.material.opacity = 0.55 + Math.sin(t*3.5)*0.2;
+
+      // Ev ışığı nabız
+      houseGlow.intensity = 2.5 + Math.sin(t*1.3)*1.0;
+      winGlow.material.opacity = 0.45 + Math.sin(t*1.3)*0.1;
+
+      // Sis sürüklenmesi
+      mistGrp.children.forEach((m,i) => { m.position.x += Math.sin(t*0.12+i)*0.002; });
+
       renderer.render(scene, camera);
     })();
   })();
