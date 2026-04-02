@@ -321,51 +321,49 @@
     }
 
     /* ── SCROLL STORY ────────────────────────── */
-    #story { position: relative; background: var(--color-dark); }
-    .story-pin { height: 300vh; position: relative; }
-    .story-sticky {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow: hidden;
+    #story {
+      background: var(--color-dark);
+      padding: 6rem 0 5rem;
     }
-    #story-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
+    .story-header {
+      text-align: center;
+      padding: 0 2rem 4rem;
+    }
+    .story-header .sec-label { color: rgba(140,140,122,0.55); margin-bottom: 1rem; }
+    .story-header .sec-title { color: var(--color-cream); margin: 0 auto 0; max-width: 600px; }
+    .story-header .sec-title em { color: var(--color-gold); }
+    .story-list {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0 2rem;
     }
     .story-step {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%) translateX(0px);
-      max-width: 380px;
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 2rem;
+      padding: 2.8rem 0;
+      border-bottom: 1px solid rgba(245,240,232,0.07);
       opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.6s ease, transform 0.6s ease;
-      z-index: 10;
+      transform: translateX(-36px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
     }
-    #step1 { left: 5vw; opacity: 1; }
-    #step2 { right: 5vw; text-align: right; }
-    #step3 { left: 5vw; }
-    #step4 { right: 5vw; text-align: right; }
-    #step5 { left: 5vw; }
+    .story-step.from-right { transform: translateX(36px); }
+    .story-step.in { opacity: 1; transform: translateX(0); }
     .step-num {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 5.5rem;
+      font-size: 3rem;
       font-weight: 300;
-      color: rgba(200,169,110,0.1);
+      color: rgba(200,169,110,0.2);
       line-height: 1;
-      margin-bottom: 0.8rem;
+      padding-top: 0.3rem;
     }
     .step-title {
       font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(1.9rem, 3vw, 2.9rem);
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
       font-weight: 300;
       color: var(--color-cream);
-      line-height: 1.2;
-      margin-bottom: 1rem;
+      line-height: 1.25;
+      margin-bottom: 0.7rem;
     }
     .step-body {
       font-size: 0.83rem;
@@ -373,6 +371,7 @@
       line-height: 1.95;
       letter-spacing: 0.015em;
       color: rgba(245,240,232,0.45);
+      max-width: 520px;
     }
 
     /* ── DIFFERENCE ──────────────────────────── */
@@ -741,37 +740,43 @@
 
   <!-- ── SCROLL STORY ── -->
   <section id="story">
-    <div class="story-pin">
-      <div class="story-sticky">
-        <canvas id="story-canvas"></canvas>
-
-        <div class="story-step" id="step1">
-          <div class="step-num">01</div>
-          <h3 class="step-title">Toprağı<br>tanıyoruz.</h3>
+    <div class="story-header">
+      <p class="sec-label">Nasıl Çalışırız</p>
+      <h2 class="sec-title">Araziden eve,<br><em>her adımda yanınızdayız.</em></h2>
+    </div>
+    <div class="story-list">
+      <div class="story-step" id="step1">
+        <div class="step-num">01</div>
+        <div>
+          <h3 class="step-title">Toprağı tanıyoruz.</h3>
           <p class="step-body">Her yapı, o arazinin ruhunu taşır. Önce toprağı dinler, güneşin yönünü hesaplar, ağaçların gölgesini ölçeriz.</p>
         </div>
-
-        <div class="story-step" id="step2">
-          <div class="step-num">02</div>
-          <h3 class="step-title">İskelet<br>yükseliyor.</h3>
+      </div>
+      <div class="story-step from-right" id="step2">
+        <div class="step-num">02</div>
+        <div>
+          <h3 class="step-title">İskelet yükseliyor.</h3>
           <p class="step-body">Çelik karkas, yapının omurgası. Depreme dayanıklı, çevreyle uyumlu, yüzyıllar boyu ayakta kalacak.</p>
         </div>
-
-        <div class="story-step" id="step3">
-          <div class="step-num">03</div>
-          <h3 class="step-title">Form<br>beliriyor.</h3>
+      </div>
+      <div class="story-step" id="step3">
+        <div class="step-num">03</div>
+        <div>
+          <h3 class="step-title">Form beliriyor.</h3>
           <p class="step-body">Büyük cam yüzeyler, doğal malzemeler ve özel detaylarla hayal ettiğiniz mekân şekillenmeye başlar.</p>
         </div>
-
-        <div class="story-step" id="step4">
-          <div class="step-num">04</div>
-          <h3 class="step-title">Doğayla<br>bütünleşiyor.</h3>
+      </div>
+      <div class="story-step from-right" id="step4">
+        <div class="step-num">04</div>
+        <div>
+          <h3 class="step-title">Doğayla bütünleşiyor.</h3>
           <p class="step-body">Tamamlanan yapı, çevresiyle çatışmaz — onu tamamlar. Sabah sisi, yağmur, kar: hepsi bu evin parçasıdır.</p>
         </div>
-
-        <div class="story-step" id="step5">
-          <div class="step-num">05</div>
-          <h3 class="step-title">Yaşam<br>başlıyor.</h3>
+      </div>
+      <div class="story-step" id="step5">
+        <div class="step-num">05</div>
+        <div>
+          <h3 class="step-title">Yaşam başlıyor.</h3>
           <p class="step-body">İçeriden süzülen ışık, dışarıdan görünen sıcaklık. Burası artık sadece bir yapı değil — bir hayatın evidir.</p>
         </div>
       </div>
@@ -1141,329 +1146,12 @@
     .to('.hero-cta',  { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, '-=0.6')
     .to('#scrollCue', { opacity: 1,        duration: 0.8, ease: 'power2.out' }, '-=0.3');
 
-  // ════════════════════════════════════════════
-  //  THREE.JS — SCROLL STORY (Sinematik)
-  // ════════════════════════════════════════════
-  (function storyScene() {
-    const canvas   = document.getElementById('story-canvas');
-    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-    renderer.setClearColor(0x0C1A0A, 1);
+  // ── Scroll story adımları — IntersectionObserver
+  const storyObs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.story-step').forEach(el => storyObs.observe(el));
 
-    const W = () => canvas.offsetWidth;
-    const H = () => canvas.offsetHeight;
-    renderer.setSize(W(), H());
-
-    const scene = new THREE.Scene();
-    const fogObj = new THREE.FogExp2(0x0C1A0A, 0.022);
-    scene.fog = fogObj;
-
-    const camera = new THREE.PerspectiveCamera(52, W()/H(), 0.1, 200);
-
-    // ── Işıklar ──
-    const ambLight = new THREE.AmbientLight(0x1A3010, 2.5);
-    scene.add(ambLight);
-    const sunLight = new THREE.DirectionalLight(0xFFE4B0, 1.0);
-    sunLight.position.set(10, 14, 6);
-    scene.add(sunLight);
-    const warmPt = new THREE.PointLight(0xFF8833, 0, 10);
-    warmPt.position.set(0, 2.5, 0);
-    scene.add(warmPt);
-
-    // ── Arazi (tepeler, ortada düz alan) ──
-    const terrainGeo = new THREE.PlaneGeometry(120, 120, 70, 70);
-    const tPos = terrainGeo.attributes.position;
-    for (let i = 0; i < tPos.count; i++) {
-      const x = tPos.getX(i), y = tPos.getY(i);
-      const d = Math.sqrt(x*x + y*y);
-      const fade = Math.min(1, Math.max(0, (d - 14) / 10));
-      tPos.setZ(i, (Math.sin(x*0.14)*Math.cos(y*0.11)*1.3 + Math.sin(x*0.07+y*0.09)*0.7) * fade);
-    }
-    terrainGeo.computeVertexNormals();
-    scene.add(new THREE.Mesh(terrainGeo, new THREE.MeshLambertMaterial({ color: 0x1A3A14 }))
-      .rotateX(-Math.PI/2));
-
-    // Grid overlay
-    const gridO = new THREE.Mesh(
-      new THREE.PlaneGeometry(120,120,35,35),
-      new THREE.MeshBasicMaterial({ color: 0x2A5020, wireframe: true, transparent: true, opacity: 0.12 })
-    );
-    gridO.rotation.x = -Math.PI/2;
-    gridO.position.y = 0.03;
-    scene.add(gridO);
-
-    // ── Ağaçlar ──
-    const allTrees = [];
-    function makeTree(x, z, sc, phase) {
-      const g = new THREE.Group();
-      const h = 2 + Math.random();
-      g.add(Object.assign(
-        new THREE.Mesh(new THREE.CylinderGeometry(0.06*sc, 0.14*sc, h*sc, 6),
-          new THREE.MeshLambertMaterial({ color: 0x3D2B1F })),
-        { position: new THREE.Vector3(0, h*sc*0.5, 0) }
-      ));
-      [0,1,2].forEach(l => {
-        const cone = new THREE.Mesh(
-          new THREE.ConeGeometry((1.3-l*0.28)*sc, (3.8+Math.random())*sc/3*1.3, 7),
-          new THREE.MeshLambertMaterial({ color: [0x1A3A14,0x1C3A1E,0x243D20][l] })
-        );
-        cone.position.y = h*sc + l*(3.8*sc/3)*0.55 + (3.8*sc/3)*0.35;
-        g.add(cone);
-      });
-      g.position.set(x, 0, z);
-      if (phase > 0) g.scale.setScalar(0.001);
-      scene.add(g);
-      allTrees.push({ g, phase });
-    }
-    [[-14,-7],[-16,2],[-13,9],[-18,-2],[-12,-14],[-20,6],[14,-6],[16,3],[13,10],[18,-3],[12,-13],[20,5]]
-      .forEach(([x,z]) => makeTree(x,z,1,0));
-    [[-8,-13],[8,-12],[-6,15],[6,14],[-22,-8],[22,7],[-10,17],[10,-17],[-4,-19],[4,18]]
-      .forEach(([x,z]) => makeTree(x,z,0.8,4));
-
-    // ── Ev grubu (zemin altından yükseliyor) ──
-    const house = new THREE.Group();
-    house.position.y = -9;
-    scene.add(house);
-
-    // Temel
-    house.add(Object.assign(
-      new THREE.Mesh(new THREE.BoxGeometry(9,0.3,7),
-        new THREE.MeshLambertMaterial({ color: 0x6B5A4A })),
-      { position: new THREE.Vector3(0,0.15,0) }
-    ));
-
-    // ── Çelik iskelet ──
-    const steelMat = new THREE.LineBasicMaterial({ color: 0x88C870, transparent: true, opacity: 1 });
-    const steelGrp = new THREE.Group();
-    function sLine(x1,y1,z1,x2,y2,z2) {
-      const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x1,y1,z1),new THREE.Vector3(x2,y2,z2)]);
-      return new THREE.Line(g, steelMat);
-    }
-    // Dikmeler
-    [[-3.8,0,-3],[-3.8,0,3],[0,0,-3],[0,0,3],[3.8,0,-3],[3.8,0,3]].forEach(([x,,z]) => {
-      steelGrp.add(sLine(x,0,z,x,4.4,z));
-    });
-    // Kirişler
-    [[-3.8,4.4,-3,3.8,4.4,-3],[-3.8,4.4,3,3.8,4.4,3],[-3.8,4.4,-3,-3.8,4.4,3],[3.8,4.4,-3,3.8,4.4,3],[0,4.4,-3,0,4.4,3]].forEach(([...a]) => steelGrp.add(sLine(...a)));
-    // Çaprazlar
-    steelGrp.add(sLine(-3.8,0,-3,0,4.4,3));
-    steelGrp.add(sLine(0,0,-3,3.8,4.4,3));
-    // Çatı mahyası
-    [[-3.8,4.4,-3,0,6.4,0],[3.8,4.4,-3,0,6.4,0],[-3.8,4.4,3,0,6.4,0],[3.8,4.4,3,0,6.4,0]].forEach(([...a]) => steelGrp.add(sLine(...a)));
-    house.add(steelGrp);
-
-    // ── Duvarlar ──
-    const wallMat = new THREE.MeshLambertMaterial({ color: 0x3A2E24, transparent: true, opacity: 0 });
-    const wallMesh = new THREE.Mesh(new THREE.BoxGeometry(7.6,4.4,6), wallMat);
-    wallMesh.position.y = 2.2;
-    house.add(wallMesh);
-
-    // ── Çatı ──
-    const roofMat = new THREE.MeshLambertMaterial({ color: 0x251A10, transparent: true, opacity: 0 });
-    const roofGeo = new THREE.ConeGeometry(5.8,2.6,4);
-    roofGeo.rotateY(Math.PI/4);
-    const roofMesh = new THREE.Mesh(roofGeo, roofMat);
-    roofMesh.position.y = 5.7;
-    house.add(roofMesh);
-
-    // ── Pencereler ──
-    const glassMat = new THREE.MeshBasicMaterial({ color: 0x70B8D4, transparent: true, opacity: 0, side: THREE.DoubleSide });
-    const winGrp = new THREE.Group();
-    [[-2,2.7,3.01,2,1.5,0],[2,2.7,3.01,2,1.5,0],[3.81,2.5,0.4,2,1.6,Math.PI/2],[-3.81,2.5,-0.4,1.4,1.2,Math.PI/2]].forEach(([x,y,z,w,h,ry]) => {
-      const win = new THREE.Mesh(new THREE.PlaneGeometry(w,h), glassMat.clone());
-      win.position.set(x,y,z); win.rotation.y = ry;
-      winGrp.add(win);
-    });
-    house.add(winGrp);
-
-    // ── Teras ──
-    const deckMat = new THREE.MeshLambertMaterial({ color: 0x5A3D28, transparent: true, opacity: 0 });
-    const deck = new THREE.Mesh(new THREE.BoxGeometry(4.5,0.18,3.5), deckMat);
-    deck.position.set(0,0.09,-4.8);
-    house.add(deck);
-
-    // ── İç mekan ısı parlaması ──
-    const glowMat = new THREE.MeshBasicMaterial({ color: 0xFFAA44, transparent: true, opacity: 0 });
-    const glowMesh = new THREE.Mesh(new THREE.SphereGeometry(1.6,8,8), glowMat);
-    glowMesh.position.y = 2.2;
-    house.add(glowMesh);
-
-    // ── Ateşböceği partikülleri ──
-    const ffCount = 90;
-    const ffPos = new Float32Array(ffCount*3);
-    for (let i=0;i<ffCount;i++) {
-      ffPos[i*3]  =(Math.random()-0.5)*14;
-      ffPos[i*3+1]= Math.random()*9;
-      ffPos[i*3+2]=(Math.random()-0.5)*14;
-    }
-    const ffGeo = new THREE.BufferGeometry();
-    ffGeo.setAttribute('position', new THREE.Float32BufferAttribute(ffPos,3));
-    const fireflies = new THREE.Points(ffGeo, new THREE.PointsMaterial({ color:0xFFCC55, size:0.13, transparent:true, opacity:0 }));
-    scene.add(fireflies);
-
-    // ── Yıldızlar ──
-    const stPos = new Float32Array(400*3);
-    for (let i=0;i<400;i++) {
-      stPos[i*3]  =(Math.random()-0.5)*180;
-      stPos[i*3+1]= 22+Math.random()*45;
-      stPos[i*3+2]=(Math.random()-0.5)*180;
-    }
-    const starGeo = new THREE.BufferGeometry();
-    starGeo.setAttribute('position', new THREE.Float32BufferAttribute(stPos,3));
-    const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color:0xDDE8FF, size:0.08, transparent:true, opacity:0 }));
-    scene.add(stars);
-
-    // ── Yardımcı fonksiyonlar ──
-    function remap(v,lo,hi) { return Math.max(0,Math.min(1,(v-lo)/(hi-lo))); }
-    function eio(t) { return t<0.5?2*t*t:-1+(4-2*t)*t; }
-
-    // ── Kamera animasyon noktaları ──
-    const camKeys = [
-      { p:0.00, x:22, y:9, z:24, lx:0, ly:1, lz:0 },
-      { p:0.15, x:16, y:7, z:19, lx:0, ly:2, lz:0 },
-      { p:0.28, x:12, y:5, z:15, lx:0, ly:3, lz:0 },
-      { p:0.45, x:10, y:4, z:12, lx:0, ly:3, lz:0 },
-      { p:0.62, x: 8, y:4, z:10, lx:0, ly:3, lz:0 },
-      { p:0.78, x:-9, y:5, z:12, lx:0, ly:3, lz:0 },
-      { p:0.90, x:-8, y:4, z:11, lx:0, ly:2.5, lz:0 },
-      { p:1.00, x:-7, y:3.5, z:10, lx:0, ly:2, lz:0 },
-    ];
-    function camAt(p) {
-      let a = camKeys[0], b = camKeys[camKeys.length-1];
-      for (let i=0;i<camKeys.length-1;i++) {
-        if (p>=camKeys[i].p && p<=camKeys[i+1].p) { a=camKeys[i]; b=camKeys[i+1]; break; }
-      }
-      const span = b.p - a.p;
-      const t = span < 0.0001 ? 0 : eio((p-a.p)/span);
-      return {
-        x: a.x+(b.x-a.x)*t, y: a.y+(b.y-a.y)*t, z: a.z+(b.z-a.z)*t,
-        lx:a.lx+(b.lx-a.lx)*t, ly:a.ly+(b.ly-a.ly)*t, lz:a.lz+(b.lz-a.lz)*t
-      };
-    }
-
-    let progress = 0, sTime = 0;
-
-    // ── ScrollTrigger: sahne durumunu güncelle ──
-    ScrollTrigger.create({
-      trigger: '.story-pin',
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: true,
-      onUpdate(self) {
-        progress = self.progress;
-        const p = progress;
-
-        // Ev zemin altından yükseliyor (0.12→0.30)
-        house.position.y = -9 + 9 * eio(remap(p, 0.12, 0.30));
-
-        // Çelik iskelet (0.10→0.55)
-        steelMat.opacity = p<0.10?0: p<0.28?remap(p,0.10,0.28): p<0.50?1-remap(p,0.42,0.55)*0.65:0.35;
-
-        // Duvarlar (0.32→0.58)
-        wallMat.opacity = eio(remap(p,0.32,0.58))*0.95;
-
-        // Çatı (0.38→0.62)
-        roofMat.opacity = eio(remap(p,0.38,0.62))*0.92;
-
-        // Teras (0.52→0.68)
-        deckMat.opacity = eio(remap(p,0.52,0.68));
-
-        // Pencereler (0.48→0.70)
-        winGrp.children.forEach(w => { w.material.opacity = eio(remap(p,0.48,0.70))*0.52; });
-
-        // Peyzaj ağaçları büyüyor (0.58→0.78)
-        allTrees.forEach(({ g, phase }) => { if (phase===4) g.scale.setScalar(eio(remap(p,0.58,0.78))); });
-
-        // Yıldızlar (0.65→0.90)
-        stars.material.opacity = eio(remap(p,0.65,0.90))*0.55;
-
-        // İç mekan parlaması (0.72→0.95)
-        const gAlpha = eio(remap(p,0.72,0.95));
-        glowMat.opacity = gAlpha*0.38;
-        warmPt.intensity = gAlpha*7;
-
-        // Ateşböcekleri (0.78→0.98)
-        fireflies.material.opacity = eio(remap(p,0.78,0.98))*0.72;
-
-        // Gün→gece renk geçişi
-        const night = remap(p,0.50,0.88);
-        const bg = new THREE.Color(
-          (12-night*6)/255,
-          (26-night*12)/255,
-          (10+night*8)/255
-        );
-        renderer.setClearColor(bg, 1);
-        fogObj.density = 0.022 - night*0.007;
-        sunLight.intensity = 1.0 - night*0.7;
-        ambLight.intensity = 2.5 + night*1.0;
-      }
-    });
-
-    // ── Adım metinleri ──
-    const stepDefs = [
-      { id:'step1', in: 0.00, out:0.22, dir: 1 },
-      { id:'step2', in: 0.20, out:0.42, dir:-1 },
-      { id:'step3', in: 0.40, out:0.62, dir: 1 },
-      { id:'step4', in: 0.60, out:0.82, dir:-1 },
-      { id:'step5', in: 0.80, out:1.00, dir: 1 },
-    ];
-    // Başlangıçta step1 görünür
-    document.getElementById('step1').style.opacity = 1;
-    document.getElementById('step1').style.transform = 'translateY(-50%) translateX(0px)';
-
-    ScrollTrigger.create({
-      trigger: '.story-pin', start: 'top top', end: 'bottom bottom', scrub: true,
-      onUpdate(self) {
-        const p = self.progress;
-        stepDefs.forEach(({ id, in:si, out:so, dir }) => {
-          const el = document.getElementById(id);
-          const mid = (si+so)/2;
-          let alpha, tx;
-          if      (p<=si)  { alpha = id==='step1' ? 1 : 0; tx = id==='step1' ? 0 : 70*dir; }
-          else if (p<=mid) { const t=(p-si)/(mid-si); alpha=t; tx=70*dir*(1-t); }
-          else if (p<=so)  { const t=(p-mid)/(so-mid); alpha=1-t; tx=-70*dir*t; }
-          else             { alpha=0; tx=-70*dir; }
-          el.style.opacity = alpha;
-          el.style.transform = `translateY(-50%) translateX(${tx}px)`;
-        });
-      }
-    });
-
-    window.addEventListener('resize', () => {
-      camera.aspect = W()/H();
-      camera.updateProjectionMatrix();
-      renderer.setSize(W(), H());
-    });
-
-    // ── Render döngüsü ──
-    (function tick() {
-      requestAnimationFrame(tick);
-      sTime += 0.006;
-
-      const cam = camAt(progress);
-      camera.position.set(cam.x, cam.y, cam.z);
-      camera.lookAt(cam.lx, cam.ly, cam.lz);
-
-      // Ateşböceği uçuşu
-      if (progress > 0.72) {
-        const fp = ffGeo.attributes.position;
-        for (let i=0;i<ffCount;i++) {
-          fp.setY(i, (fp.getY(i)+0.01) % 10);
-          fp.setX(i, fp.getX(i)+Math.sin(sTime*0.6+i*0.8)*0.006);
-        }
-        fp.needsUpdate = true;
-      }
-
-      // Parlamayı pulse et
-      if (progress > 0.72) {
-        const base = eio(remap(progress,0.72,0.95));
-        glowMesh.material.opacity = base*0.32 + Math.sin(sTime*1.6)*0.06;
-        warmPt.intensity = base*7 + Math.sin(sTime*1.6)*1.2;
-      }
-
-      renderer.render(scene, camera);
-    })();
-  })();
 
   // ════════════════════════════════════════════
   //  INTERSECTION OBSERVER — reveal
